@@ -91,7 +91,9 @@ def generate_aws_lambda_cloudformation_template_file(
     project_dir,
     api_names,
     bento_service_name,
-    ecr_image_uri,
+    docker_tag,
+    docker_file,
+    docker_context,
     memory_size: int,
     timeout: int,
 ):
@@ -120,7 +122,6 @@ def generate_aws_lambda_cloudformation_template_file(
             "Properties": {
                 "FunctionName": f"{api_name}",
                 "PackageType": "Image",
-                "ImageUri": ecr_image_uri,
                 "ImageConfig": {"Command": [f"app.{api_name}"]},
                 "Events": {
                     "Api": {
@@ -137,6 +138,11 @@ def generate_aws_lambda_cloudformation_template_file(
                         "BENTOML_API_NAME": api_name,
                     }
                 },
+            },
+            "Metadata": {
+                "DockerTag": docker_tag,
+                "Dockerfile": docker_file,
+                "DockerContext": "./",
             },
         }
 
@@ -175,5 +181,3 @@ def call_sam_command(command, project_dir, region):
     )
     stdout, stderr = proc.communicate()
     return proc.returncode, stdout.decode("utf-8"), stderr.decode("utf-8")
-
-

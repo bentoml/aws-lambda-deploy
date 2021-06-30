@@ -35,22 +35,19 @@ def deploy_aws_lambda(bento_bundle_path, deployment_name, config_json):
         repo_name,
     ) = generate_lambda_resource_names(deployment_name)
 
-    print("Build and push image to ECR")
-    repository_id, registry_url = create_ecr_repository_if_not_exists(
-        lambda_config["region"], repo_name
-    )
-    _, username, password = get_ecr_login_info(lambda_config["region"], repository_id)
-    ecr_tag = generate_docker_image_tag(
-        registry_url, bento_metadata.name, bento_metadata.version
-    )
-    build_docker_image(
-        context_path=deployable_path,
-        dockerfile="Dockerfile-lambda",
-        image_tag=ecr_tag,
-    )
-    push_docker_image_to_repository(
-        repository=ecr_tag, username=username, password=password
-    )
+    # print("Build and push image to ECR")
+    # _, username, password = get_ecr_login_info(lambda_config["region"], repository_id)
+    # ecr_tag = generate_docker_image_tag(
+        # registry_url, bento_metadata.name, bento_metadata.version
+    # )
+    # build_docker_image(
+    # context_path=deployable_path,
+    # dockerfile="Dockerfile-lambda",
+    # image_tag=ecr_tag,
+    # )
+    # push_docker_image_to_repository(
+    # repository=ecr_tag, username=username, password=password
+    # )
 
     print("Building SAM template")
     api_names = [api.name for api in bento_metadata.apis]
@@ -58,20 +55,54 @@ def deploy_aws_lambda(bento_bundle_path, deployment_name, config_json):
         project_dir=deployable_path,
         api_names=api_names,
         bento_service_name=bento_metadata.name,
-        ecr_image_uri=ecr_tag,
+        docker_context=deployable_path,
+        docker_file="Dockerfile-lambda",
+        docker_tag=repo_name,
         memory_size=lambda_config["memory_size"],
         timeout=lambda_config["timeout"],
     )
-    print("SAM Template file generated at ", template_file_path)
+
+    print("Building Image")
+    return_code, stdout, stderr = call_sam_command(
+        [
+            "build",
+            "--template-file",
+            template_file_path.split("/")[-1],
+            "--build-dir",
+            os.path.join(deployable_path, "build"),
+        ],
+        project_dir=deployable_path,
+        region=lambda_config["region"],
+    )
+    print(return_code, stdout, stderr)
+
+    print("Pushing Image to ECR")
+    repository_id, registry_url = create_ecr_repository_if_not_exists(
+        lambda_config["region"], repo_name
+    )
+    return_code, stdout, stderr = call_sam_command(
+        [
+            "package",
+            "--template-file",
+            os.path.join(deployable_path, "build", "template.yaml"),
+            "--output-template-file",
+            "package-template.yaml",
+            "--image-repository",
+            registry_url,
+        ],
+        project_dir=deployable_path,
+        region=lambda_config["region"],
+    )
+    print(return_code, stdout, stderr)
     return_code, stdout, stderr = call_sam_command(
         [
             "deploy",
             "-t",
-            template_file_path.split("/")[-1],
+            "package-template.yaml",
             "--stack-name",
-            "iris-classifier",
+            stack_name,
             "--image-repository",
-            ecr_tag,
+            registry_url,
             "--capabilities",
             "CAPABILITY_IAM",
             "--region",
@@ -81,10 +112,7 @@ def deploy_aws_lambda(bento_bundle_path, deployment_name, config_json):
         project_dir=deployable_path,
         region=lambda_config["region"],
     )
-    if return_code != 0:
-        print(return_code, stdout, stderr)
-    else:
-        print("Upload success!")
+    print(return_code, stdout, stderr)
 
 
 if __name__ == "__main__":
