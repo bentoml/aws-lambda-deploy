@@ -87,6 +87,7 @@ def push_docker_image_to_repository(
     if username is not None and password is not None:
         docker_push_kwags["auth_config"] = {"username": username, "password": password}
     try:
+        # TODO better logs for docker push
         for line in docker_client.images.push(
             **docker_push_kwags, stream=True, decode=True
         ):

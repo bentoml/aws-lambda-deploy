@@ -7,7 +7,7 @@ import subprocess
 from bentoml.utils.ruamel_yaml import YAML
 
 
-def generate_lambda_deployment(bento_bundle_path, project_path, lambda_config):
+def generate_lambda_deployable(bento_bundle_path, project_path, lambda_config):
     current_dir_path = os.path.dirname(__file__)
 
     # copy bento_bundle to project_path
@@ -77,10 +77,9 @@ def generate_aws_compatible_string(*items, max_length=63):
 def generate_lambda_resource_names(name):
     sam_template_name = generate_aws_compatible_string(f"{name}-template")
     deployment_stack_name = generate_aws_compatible_string(f"{name}-stack")
-    s3_bucket_name = generate_aws_compatible_string(f"{name}-storage")
     repo_name = generate_aws_compatible_string(f"{name}-repo")
 
-    return sam_template_name, deployment_stack_name, s3_bucket_name, repo_name
+    return sam_template_name, deployment_stack_name, repo_name
 
 
 def generate_docker_image_tag(registry_uri, bento_name, bento_version):

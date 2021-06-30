@@ -5,7 +5,6 @@ from bentoml.saved_bundle import load_bento_service_metadata
 
 from utils import (
     get_configuration_value,
-    create_s3_bucket_if_not_exists,
     create_ecr_repository_if_not_exists,
     build_docker_image,
     push_docker_image_to_repository,
@@ -13,7 +12,7 @@ from utils import (
     generate_docker_image_tag,
 )
 from awslambda import (
-    generate_lambda_deployment,
+    generate_lambda_deployable,
     generate_lambda_resource_names,
     generate_aws_lambda_cloudformation_template_file,
     call_sam_command,
@@ -29,17 +28,12 @@ def deploy_aws_lambda(bento_bundle_path, deployment_name, config_json):
     )
 
     print("Creating AWS Lambda deployable")
-    generate_lambda_deployment(bento_bundle_path, deployable_path, lambda_config)
+    generate_lambda_deployable(bento_bundle_path, deployable_path, lambda_config)
     (
         template_name,
         stack_name,
-        s3_bucket_name,
         repo_name,
     ) = generate_lambda_resource_names(deployment_name)
-
-    print("Creating S3 bucket for cloudformation")
-    s3_bucket_name = "yataitest1"
-    create_s3_bucket_if_not_exists(s3_bucket_name, lambda_config["region"])
 
     print("Build and push image to ECR")
     repository_id, registry_url = create_ecr_repository_if_not_exists(
