@@ -45,9 +45,9 @@ EXPOSE 5000
 
 # Setup AWS Lambda
 COPY --chown=bentoml:bentoml entry.sh ./
+RUN pip install awslambdaric
 USER bentoml
 RUN chmod +x ./entry.sh
-RUN /opt/conda/bin/python -m pip install awslambdaric
 ENV BENTOML_CONFIG=$BUNDLE_PATH/config.yml
 
 ENTRYPOINT [ "./entry.sh" ]
