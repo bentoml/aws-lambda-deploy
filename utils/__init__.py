@@ -1,6 +1,9 @@
 import subprocess
 import json
 import boto3
+import base64
+
+import docker
 
 
 def run_shell_command(command, cwd=None, env=None, shell_mode=False):
@@ -79,6 +82,45 @@ def push_docker_image_to_repository(
     if username is not None and password is not None:
         docker_push_kwags["auth_config"] = {"username": username, "password": password}
     try:
-        docker_client.images.push(**docker_push_kwags)
+        docker_client.images.push(
+            **docker_push_kwags, stream=True, decode=True
+        )
     except docker.errors.APIError as error:
         raise Exception(f"Failed to push docker image {image_tag}: {error}")
+
+
+def create_s3_bucket_if_not_exists(bucket_name, region):
+    import boto3
+    from botocore.exceptions import ClientError
+
+    s3_client = boto3.client("s3", region)
+    try:
+        s3_client.get_bucket_acl(Bucket=bucket_name)
+    except ClientError as error:
+        if error.response and error.response["Error"]["Code"] == "NoSuchBucket":
+
+            # NOTE: boto3 will raise ClientError(InvalidLocationConstraint) if
+            # `LocationConstraint` is set to `us-east-1` region.
+            # https://github.com/boto/boto3/issues/125.
+            # This issue still show up in  boto3 1.13.4(May 6th 2020)
+            try:
+                s3_client.create_bucket(
+                    Bucket=bucket_name,
+                    CreateBucketConfiguration={"LocationConstraint": region},
+                )
+            except ClientError as s3_error:
+                if (
+                    s3_error.response
+                    and s3_error.response["Error"]["Code"]
+                    == "InvalidLocationConstraint"
+                ):
+                    s3_client.create_bucket(Bucket=bucket_name)
+                else:
+                    raise s3_error
+        else:
+            raise error
+
+
+def generate_docker_image_tag(registry_uri, bento_name, bento_version):
+    image_tag = f"{bento_name}-{bento_version}".lower()
+    return f"{registry_uri}:{image_tag}"
