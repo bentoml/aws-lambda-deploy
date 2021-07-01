@@ -6,7 +6,7 @@ Deploy BentoML models to AWS Lambda
 Deploy to AWS Lambda.
 ```bash
 python deploy.py <path to bentoml bundle> <deployment name> <path to
-config_json>
+config_json:optional>
 ```
 
 ### Updating
@@ -18,6 +18,25 @@ Cloudformations stack. Make sure you give the same *`<deployment name>`* you
 gave when calling the `deploy` command.
 
 ```bash
-python deploy.py <path to bentoml bundle> <deployment name> <path to
-config_json>
+python update.py <path to bentoml bundle> <deployment name> <path to
+config_json:optional>
+```
+
+
+### Deleting
+
+To delete the stack from AWS, simply run the `delete.py` file with the correct
+*`<deployment name>`*. This will remove the ECR registry and the Cloudformations
+stack.
+
+```
+python delete.py <deployment name> <path to config_json: optional>
+```
+
+### Describe
+
+Show information about the lambda deployment.
+
+```bash
+python describe.py <deployment name>
 ```
