@@ -77,7 +77,8 @@ def generate_aws_compatible_string(*items, max_length=63):
 def generate_lambda_resource_names(name):
     sam_template_name = generate_aws_compatible_string(f"{name}-template")
     deployment_stack_name = generate_aws_compatible_string(f"{name}-stack")
-    repo_name = generate_aws_compatible_string(f"{name}-repo")
+    # repo should be (?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*''
+    repo_name = generate_aws_compatible_string(f"{name}-repo").lower()
 
     return sam_template_name, deployment_stack_name, repo_name
 
@@ -104,15 +105,15 @@ def generate_aws_lambda_cloudformation_template_file(
         "Transform": "AWS::Serverless-2016-10-31",
         "Globals": {
             "Function": {"Timeout": timeout, "MemorySize": memory_size},
-            # "Api": {
-            # "BinaryMediaTypes": ["image~1*"],
-            # "Cors": "'*'",
-            # "Auth": {
-            # "ApiKeyRequired": False,
-            # "DefaultAuthorizer": "NONE",
-            # "AddDefaultAuthorizerToCorsPreflight": False,
-            # },
-            # },
+            "Api": {
+                "BinaryMediaTypes": ["image~1*"],
+                "Cors": "'*'",
+                "Auth": {
+                    "ApiKeyRequired": False,
+                    "DefaultAuthorizer": "NONE",
+                    "AddDefaultAuthorizerToCorsPreflight": False,
+                },
+            },
         },
         "Resources": {},
     }

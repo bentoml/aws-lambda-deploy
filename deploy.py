@@ -6,10 +6,6 @@ from bentoml.saved_bundle import load_bento_service_metadata
 from utils import (
     get_configuration_value,
     create_ecr_repository_if_not_exists,
-    build_docker_image,
-    push_docker_image_to_repository,
-    get_ecr_login_info,
-    generate_docker_image_tag,
 )
 from awslambda import (
     generate_lambda_deployable,
@@ -34,20 +30,6 @@ def deploy_aws_lambda(bento_bundle_path, deployment_name, config_json):
         stack_name,
         repo_name,
     ) = generate_lambda_resource_names(deployment_name)
-
-    # print("Build and push image to ECR")
-    # _, username, password = get_ecr_login_info(lambda_config["region"], repository_id)
-    # ecr_tag = generate_docker_image_tag(
-        # registry_url, bento_metadata.name, bento_metadata.version
-    # )
-    # build_docker_image(
-    # context_path=deployable_path,
-    # dockerfile="Dockerfile-lambda",
-    # image_tag=ecr_tag,
-    # )
-    # push_docker_image_to_repository(
-    # repository=ecr_tag, username=username, password=password
-    # )
 
     print("Building SAM template")
     api_names = [api.name for api in bento_metadata.apis]

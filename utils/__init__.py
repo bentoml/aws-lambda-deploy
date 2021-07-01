@@ -74,11 +74,6 @@ def build_docker_image(
         raise Exception(f"Failed to build docker image {image_tag}: {error}")
 
 
-def print_push_progess(line):
-    # re.sub(r"\[[=, >]*\]  ", "", s)
-    print(line)
-
-
 def push_docker_image_to_repository(
     repository, image_tag=None, username=None, password=None
 ):
@@ -87,11 +82,9 @@ def push_docker_image_to_repository(
     if username is not None and password is not None:
         docker_push_kwags["auth_config"] = {"username": username, "password": password}
     try:
-        # TODO better logs for docker push
-        for line in docker_client.images.push(
+        docker_client.images.push(
             **docker_push_kwags, stream=True, decode=True
-        ):
-            print(line)
+        )
     except docker.errors.APIError as error:
         raise Exception(f"Failed to push docker image {image_tag}: {error}")
 
