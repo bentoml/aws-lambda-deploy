@@ -94,6 +94,8 @@ def deploy_aws_lambda(bento_bundle_path, deployment_name, config_json):
         region=lambda_config["region"],
     )
     print(return_code, stdout, stderr)
+
+    print("Deploying the Image")
     return_code, stdout, stderr = call_sam_command(
         [
             "deploy",
