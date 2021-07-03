@@ -3,14 +3,17 @@ import boto3
 import json
 from botocore.exceptions import ClientError
 
-from awslambda import generate_lambda_resource_names
+from aws_lambda import generate_lambda_resource_names
+from utils import get_configuration_value
 
 
-def describe_lambda_deployment(deployment_name):
+def describe_lambda_deployment(deployment_name, config_file_path):
     # get data about cf stack
     _, stack_name, repo_name = generate_lambda_resource_names(deployment_name)
-    cf_client = boto3.client("cloudformation")
+    cf_client = boto3.client("cloudformation", "us-west-1")
+    lambda_config = get_configuration_value(config_file_path)
     try:
+        print(stack_name)
         stack_info = cf_client.describe_stacks(StackName=stack_name)
     except ClientError:
         print(f"Unable to find {deployment_name} in your cloudformation stack.")
@@ -41,8 +44,11 @@ def describe_lambda_deployment(deployment_name):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        raise Exception("Please provide deployment name")
+    if len(sys.argv) < 2:
+        raise Exception(
+            "Please provide deployment name and the optional configuration file"
+        )
     deployment_name = sys.argv[1]
+    config_json = sys.argv[3] if len(sys.argv) == 4 else "lambda_config.json"
 
-    describe_lambda_deployment(deployment_name)
+    describe_lambda_deployment(deployment_name, config_json)

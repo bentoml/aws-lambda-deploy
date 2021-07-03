@@ -11,7 +11,7 @@ from utils import (
     get_ecr_login_info,
     generate_docker_image_tag,
 )
-from awslambda import (
+from aws_lambda import (
     generate_lambda_deployable,
     generate_lambda_resource_names,
     generate_aws_lambda_cloudformation_template_file,
@@ -38,6 +38,7 @@ def update_aws_lambda(bento_bundle_path, deployment_name, config_json):
     print("Building SAM template")
     api_names = [api.name for api in bento_metadata.apis]
     template_file_path = generate_aws_lambda_cloudformation_template_file(
+        deployment_name=deployment_name,
         project_dir=deployable_path,
         api_names=api_names,
         bento_service_name=bento_metadata.name,

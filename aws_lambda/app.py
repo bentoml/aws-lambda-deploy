@@ -14,12 +14,12 @@ this_module = sys.modules[__name__]
 
 def api_func(event, context):
     print('Loading from dir...')
-    bservice = load_from_dir('./')
-    b_service_api = bservice.get_inference_api(api_name)
-    print('loaded API: ', b_service_api.name)
+    bento_service = load_from_dir('./')
+    service_api = bento_service.get_inference_api(api_name)
+    print('loaded API: ', service_api.name)
 
     print('Event: ', event)
-    prediction = b_service_api.handle_aws_lambda_event(event)
+    prediction = service_api.handle_aws_lambda_event(event)
     print(prediction['body'], prediction['statusCode'])
     return prediction
 

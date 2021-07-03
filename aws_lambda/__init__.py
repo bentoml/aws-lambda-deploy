@@ -89,6 +89,7 @@ def generate_docker_image_tag(registry_uri, bento_name, bento_version):
 
 
 def generate_aws_lambda_cloudformation_template_file(
+    deployment_name,
     project_dir,
     api_names,
     bento_service_name,
@@ -121,7 +122,7 @@ def generate_aws_lambda_cloudformation_template_file(
         sam_config["Resources"][api_name] = {
             "Type": "AWS::Serverless::Function",
             "Properties": {
-                "FunctionName": f"{api_name}",
+                "FunctionName": f"{deployment_name}-{api_name}",
                 "PackageType": "Image",
                 "ImageConfig": {"Command": [f"app.{api_name}"]},
                 "Events": {

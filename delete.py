@@ -2,11 +2,11 @@ import sys
 import boto3
 from botocore.exceptions import ClientError
 
-from awslambda import generate_lambda_resource_names
+from aws_lambda import generate_lambda_resource_names
 from utils import get_configuration_value
 
 
-def delete_deployment(deployment_name, config_json):
+def delete_aws_lambda(deployment_name, config_json):
     lambda_config = get_configuration_value(config_json)
     _, stack_name, repo_name = generate_lambda_resource_names(deployment_name)
     cf_client = boto3.client("cloudformation", lambda_config["region"])
@@ -32,4 +32,4 @@ if __name__ == "__main__":
     deployment_name = sys.argv[1]
     config_json = sys.argv[2] if len(sys.argv) == 3 else "lambda_config.json"
 
-    delete_deployment(deployment_name, config_json)
+    delete_aws_lambda(deployment_name, config_json)
