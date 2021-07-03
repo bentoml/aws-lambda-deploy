@@ -1,5 +1,10 @@
-# aws-lambda-deploy
-Deploy BentoML models to AWS Lambda
+# BentoML AWS Lambda deployment tool
+
+[![Generic badge](https://img.shields.io/badge/Release-Alpha-<COLOR>.svg)](https://shields.io/)
+
+AWS Lambda is a great service for quickly deploy service to the cloud for immediate
+access. It's ability to auto scale resources base on usage make it attractive to
+user who want to save cost and want to scale base on usage without administrative overhead.
 
 ## Prerequisites
 
@@ -68,6 +73,21 @@ curl -i \
   --request POST \
   --data '[[5.1, 3.5, 1.4, 0.2]]' \
   https://j2gm5zn7z9.execute-api.us-west-1.amazonaws.com/Prod/predict
+
+# Sample output
+HTTP/2 200
+content-type: application/json
+content-length: 3
+date: Sat, 03 Jul 2021 19:14:38 GMT
+x-amzn-requestid: d3b5f156-0859-4f69-8b53-c60e800bc0aa
+x-amz-apigw-id: B6GLLECTSK4FY2w=
+x-amzn-trace-id: Root=1-60e0b714-18a97eb5696cec991c460213;Sampled=0
+x-cache: Miss from cloudfront
+via: 1.1 6af3b573d8970d5db2a4d03354335b85.cloudfront.net (CloudFront)
+x-amz-cf-pop: SEA19-C3
+x-amz-cf-id: ArwZ03gbs6GooNN1fy4mPOgaEpM4h4n9gz2lpLYrHmeXZJuGUJgz0Q==
+
+[0]%
 ```
 
 5. Delete Lambda deployment
@@ -86,7 +106,6 @@ Delete ECR repo my-lambda-deployment-repo
 
 Use CLI
 
-```
 ```bash
 python deploy.py <Bento_bundle_path> <Deployment_name> <Config_JSON default is lambda_config.json>
 ```

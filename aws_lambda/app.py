@@ -1,27 +1,45 @@
-from bentoml.saved_bundle import load_from_dir
+import json
 import logging
 import os
 import sys
 
+from bentoml.saved_bundle import load_from_dir
 
-# bento_name = os.environ['BENTOML_BENTO_SERVICE_NAME']
-# api_name = os.environ["BENTOML_API_NAME"]
+
 api_name = os.environ["BENTOML_API_NAME"]
-
-
 print('loading app: ', api_name)
+print('Loading from dir...')
+bento_service = load_from_dir('./')
+print('bento service', bento_service)
+bento_service_api = bento_service.get_inference_api(api_name)
+
 this_module = sys.modules[__name__]
 
+
 def api_func(event, context):
-    print('Loading from dir...')
-    bento_service = load_from_dir('./')
-    service_api = bento_service.get_inference_api(api_name)
-    print('loaded API: ', service_api.name)
+    if type(event) is dict and "headers" in event and "body" in event:
+        prediction = bento_service_api.handle_aws_lambda_event(event)
+        print(
+            json.dumps(
+                {
+                    'event': event,
+                    'prediction': prediction["body"],
+                    'status_code': prediction["statusCode"],
+                }
+            )
+        )
 
-    print('Event: ', event)
-    prediction = service_api.handle_aws_lambda_event(event)
-    print(prediction['body'], prediction['statusCode'])
-    return prediction
+        if prediction["statusCode"] >= 400:
+            logger.warning('Error when predicting. Check logs for more information.')
 
+        return prediction
+    else:
+        error_msg = (
+            'Error: Unexpected Lambda event data received. Currently BentoML lambda '
+            'deployment can only handle event triggered by HTTP request from '
+            'Application Load Balancer.'
+        )
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
 
 setattr(this_module, api_name, api_func)
