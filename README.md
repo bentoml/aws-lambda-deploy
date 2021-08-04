@@ -11,6 +11,7 @@ user who want to save cost and want to scale base on usage without administrativ
 - An active AWS account configured on the machine with AWS CLI installed and configured
     - Install instruction: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
     - Configure AWS account instruction: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
+- AWS SAM CLI (>=1.27). Installation instructions https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
 - Docker is installed and running on the machine.
     - Install instruction: https://docs.docker.com/install
 
@@ -127,7 +128,7 @@ deploy_aws_lambda(BENTO_BUNDLE_PATH, DEPLOYMENT_NAME, CONFIG_JSON)
 
 #### Available configuration options for Lambda deployments
 
-* `region`: AWS region for EC2 deployment
+* `region`: AWS region for Lambda deployment
 * `timeout`: Timeout per request
 * `memory_size`: The memory for your function, set a value between 128 MB and 10,240 MB in 1-MB increments
 
