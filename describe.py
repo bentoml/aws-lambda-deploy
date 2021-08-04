@@ -10,10 +10,9 @@ from utils import get_configuration_value
 def describe_lambda_deployment(deployment_name, config_file_path):
     # get data about cf stack
     _, stack_name, repo_name = generate_lambda_resource_names(deployment_name)
-    cf_client = boto3.client("cloudformation", "us-west-1")
     lambda_config = get_configuration_value(config_file_path)
+    cf_client = boto3.client("cloudformation", lambda_config["region"])
     try:
-        print(stack_name)
         stack_info = cf_client.describe_stacks(StackName=stack_name)
     except ClientError:
         print(f"Unable to find {deployment_name} in your cloudformation stack.")
@@ -39,7 +38,6 @@ def describe_lambda_deployment(deployment_name, config_file_path):
     outputs = {o["OutputKey"]: o["OutputValue"] for o in outputs}
     info_json.update(outputs)
 
-    # import pdb; pdb.set_trace()
     print(json.dumps(info_json, indent=2))
 
 

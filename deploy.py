@@ -57,7 +57,7 @@ def deploy_aws_lambda(bento_bundle_path, deployment_name, config_json):
         project_dir=deployable_path,
         region=lambda_config["region"],
     )
-    print(return_code, stdout, stderr)
+    # print(return_code, stdout, stderr)
 
     print("Pushing Image to ECR")
     repository_id, registry_url = create_ecr_repository_if_not_exists(
@@ -76,7 +76,7 @@ def deploy_aws_lambda(bento_bundle_path, deployment_name, config_json):
         project_dir=deployable_path,
         region=lambda_config["region"],
     )
-    print(return_code, stdout, stderr)
+    # print(return_code, stdout, stderr)
 
     print("Deploying the Image")
     return_code, stdout, stderr = call_sam_command(
@@ -97,7 +97,7 @@ def deploy_aws_lambda(bento_bundle_path, deployment_name, config_json):
         project_dir=deployable_path,
         region=lambda_config["region"],
     )
-    print(return_code, stdout, stderr)
+    # print(return_code, stdout, stderr)
 
 
 if __name__ == "__main__":
