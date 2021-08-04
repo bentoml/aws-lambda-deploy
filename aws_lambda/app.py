@@ -30,7 +30,7 @@ def api_func(event, context):
         )
 
         if prediction["statusCode"] >= 400:
-            logger.warning('Error when predicting. Check logs for more information.')
+            logging.error('Error when predicting. Check logs for more information.')
 
         return prediction
     else:
@@ -39,7 +39,8 @@ def api_func(event, context):
             'deployment can only handle event triggered by HTTP request from '
             'Application Load Balancer.'
         )
-        logger.error(error_msg)
+        logging.error(error_msg)
         raise RuntimeError(error_msg)
+
 
 setattr(this_module, api_name, api_func)
