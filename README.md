@@ -2,7 +2,6 @@
 
 [![Generic badge](https://img.shields.io/badge/Release-Alpha-<COLOR>.svg)](https://shields.io/)
 
-some tests
 AWS Lambda is a great service for quickly deploy service to the cloud for immediate
 access. It's ability to auto scale resources base on usage make it attractive to
 user who want to save cost and want to scale base on usage without administrative overhead.
