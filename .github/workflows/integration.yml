@@ -7,6 +7,37 @@ on:
 name: Integration tests
 
 jobs:
+  integration-aws:
+    runs-on: ubuntu-latest
+    steps:
+      - run: aws --version
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SEC }}
+          aws-region: 'ap-south-1'
+      - run: aws s3 ls s3://yataimodels
+  integration-test:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - uses: actions/checkout@v2
+      - run: ls
+      - name: Setup python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SEC }}
+          aws-region: 'ap-south-1'
+      - run: python tests/test_api.py
+
   # Repo owner has commented /ok-to-test on a (fork-based) pull request
   integration-with-secrets:
     runs-on: ubuntu-latest
@@ -24,8 +55,15 @@ jobs:
 
     # <insert integration tests needing secrets>
 
-    - run: |
-        echo "Integration tests...success! ;-)"
+    - run: echo "Integration tests...more success! ;-)"
+    - run: aws --version
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SEC }}
+        aws-region: 'ap-south-1'
+    - run: aws s3 ls s3://yataimodels
 
     # Update check run called "integration-fork"
     - uses: actions/github-script@v1
