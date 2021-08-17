@@ -7,8 +7,14 @@ on:
 name: Integration tests
 
 jobs:
+  integration-aws:
+    runs-on: ubuntu-latest
+    steps:
+      - run: aws --version
+      - run: aws s3 ls s3://yataimodels
   integration-test:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - uses: actions/checkout@v2
       - run: ls
