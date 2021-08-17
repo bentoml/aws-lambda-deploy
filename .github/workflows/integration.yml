@@ -55,8 +55,7 @@ jobs:
 
     # <insert integration tests needing secrets>
 
-    - run: |
-        echo "Integration tests...success! ;-)"
+    - run: echo "Integration tests...more success! ;-)"
     - run: aws --version
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
