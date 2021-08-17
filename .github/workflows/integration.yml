@@ -63,7 +63,7 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SEC }}
         aws-region: 'ap-south-1'
-    - run: aws s3 ls s3://yataimodels
+    - run: python tests/test_api.py
 
     # Update check run called "integration-fork"
     - uses: actions/github-script@v1
