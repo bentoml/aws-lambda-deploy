@@ -50,8 +50,8 @@ jobs:
     # Check out merge commit
     - name: Fork based /ok-to-test checkout
       uses: actions/checkout@v2
-      with:
-        ref: 'refs/pull/${{ github.event.client_payload.pull_request.number }}/merge'
+      #with:
+        #ref: 'refs/pull/${{ github.event.client_payload.pull_request.number }}/merge'
 
     # <insert integration tests needing secrets>
 
