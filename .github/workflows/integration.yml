@@ -12,9 +12,7 @@ jobs:
     steps:
       - name: fork latest
         uses: actions/checkout@v2
-      - run: ls
-      - run: echo "test"
-      - run: python --version
+      - run: python tests/test_api.py
 
   # Repo owner has commented /ok-to-test on a (fork-based) pull request
   integration-with-secrets:
