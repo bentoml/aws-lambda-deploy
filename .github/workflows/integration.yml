@@ -12,9 +12,6 @@ jobs:
     steps:
       - name: fork latest
         uses: actions/checkout@v2
-        with:
-          ref: 'refs/pull/${{ github.event.client_payload.pull_request.number }}/merge'
-
       - run: ls
       - run: echo "test"
       - run: python --version
