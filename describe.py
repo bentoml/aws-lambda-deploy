@@ -38,7 +38,7 @@ def describe_lambda_deployment(deployment_name, config_file_path):
     outputs = {o["OutputKey"]: o["OutputValue"] for o in outputs}
     info_json.update(outputs)
 
-    print(json.dumps(info_json, indent=2))
+    return info_json
 
 
 if __name__ == "__main__":
@@ -49,4 +49,5 @@ if __name__ == "__main__":
     deployment_name = sys.argv[1]
     config_json = sys.argv[3] if len(sys.argv) == 4 else "lambda_config.json"
 
-    describe_lambda_deployment(deployment_name, config_json)
+    info_json = describe_lambda_deployment(deployment_name, config_json)
+    print(json.dumps(info_json, indent=2))
