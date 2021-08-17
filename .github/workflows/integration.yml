@@ -55,7 +55,6 @@ jobs:
 
     # <insert integration tests needing secrets>
 
-    - run: echo "Integration tests...more success! ;-)"
     - run: aws --version
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -63,7 +62,14 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SEC }}
         aws-region: 'ap-south-1'
-    - run: aws s3 ls s3://yataimodels
+    - name: Setup python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: python -m pip install -r requirements.txt
+    - name: Run Integration tests
+      run: python tests/test_api.py
 
     # Update check run called "integration-fork"
     - uses: actions/github-script@v1
