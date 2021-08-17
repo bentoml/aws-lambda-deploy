@@ -27,8 +27,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: 'AKIATDLWXYSKEB75WKMR'
-          aws-secret-access-key: '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'
+          aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SEC }}
           aws-region: 'ap-south-1'
       - run: python tests/test_api.py
 
