@@ -7,6 +7,13 @@ on:
 name: Integration tests
 
 jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: ls
+      - run: echo "test"
+      - run: python --version
+
   # Repo owner has commented /ok-to-test on a (fork-based) pull request
   integration-with-secrets:
     runs-on: ubuntu-latest
