@@ -13,6 +13,7 @@ from classifier import TestService
 sys.path.append("./")
 from deploy import deploy_aws_lambda
 from describe import describe_lambda_deployment
+from delete import delete_aws_lambda
 
 
 class Setup:
@@ -20,6 +21,7 @@ class Setup:
         """
         Setup the deployment on the deployment choosen
         """
+        self.deployment_name = "lambda_bento_deploy_test"
         self.dirpath = tempfile.mkdtemp()
         print("temp dir {} created!".format(self.dirpath))
         self.saved_dir = os.path.join(self.dirpath, "saved_dir")
@@ -43,22 +45,21 @@ class Setup:
         test_service.save_to_dir(self.saved_dir)
 
     def make_deployment(self):
-        deploy_aws_lambda(self.saved_dir, "lambda_bento_deploy_test", self.config_file)
-        info_json = describe_lambda_deployment(
-            "lambda_bento_deploy_test", self.config_file
-        )
+        deploy_aws_lambda(self.saved_dir, self.deployment_name, self.config_file)
+        info_json = describe_lambda_deployment(self.deployment_name, self.config_file)
         url = info_json["EndpointUrl"] + "/{}"
 
         # ping /healthz to check if deployment is up
         # attempt = 0
         # while attempt < 5:
-            # time.sleep(10)
-            # if urllib.request.urlopen(url.format("healthz")).status == 200:
-                # break
+        # time.sleep(10)
+        # if urllib.request.urlopen(url.format("healthz")).status == 200:
+        # break
         time.sleep(20)
         return url
 
     def teardown(self):
+        delete_aws_lambda(self.deployment_name, self.config_file)
         shutil.rmtree(self.dirpath)
         print("Removed {}!".format(self.dirpath))
 
@@ -121,6 +122,7 @@ def test_files(url):
 if __name__ == "__main__":
 
     setup = Setup()
+    failed = False
     try:
         url = setup.make_deployment()
     except Exception as e:
@@ -141,5 +143,11 @@ if __name__ == "__main__":
             except Exception as e:
                 print("\033[91m failed! \033[0m")
                 print("\nTest at endpoint /{} failded: ".format(endpoint), e)
+                failed = True
     finally:
         setup.teardown()
+
+    if failed:
+        sys.exit(1)
+    else:
+        sys.exit(0)

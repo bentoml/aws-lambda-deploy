@@ -10,8 +10,20 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
     steps:
-      - name: fork latest
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - run: ls
+      - name: Setup python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: 'AKIATDLWXYSKEB75WKMR'
+          aws-secret-access-key: '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'
+          aws-region: 'ap-south-1'
       - run: python tests/test_api.py
 
   # Repo owner has commented /ok-to-test on a (fork-based) pull request
