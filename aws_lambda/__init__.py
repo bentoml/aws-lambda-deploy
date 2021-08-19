@@ -5,10 +5,15 @@ from pathlib import Path
 import subprocess
 
 from bentoml.utils.ruamel_yaml import YAML
+from utils import is_present
 
 
 def generate_lambda_deployable(bento_bundle_path, project_path, lambda_config):
     current_dir_path = os.path.dirname(__file__)
+
+    # is existing repo is found and user said not to overide, use existing deployable
+    if is_present(project_path):
+        return
 
     # copy bento_bundle to project_path
     shutil.copytree(bento_bundle_path, project_path)

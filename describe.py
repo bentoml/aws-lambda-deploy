@@ -5,9 +5,10 @@ from botocore.exceptions import ClientError
 
 from aws_lambda import generate_lambda_resource_names
 from utils import get_configuration_value
+from rich.pretty import pprint
 
 
-def describe_lambda_deployment(deployment_name, config_file_path):
+def describe(deployment_name, config_file_path):
     # get data about cf stack
     _, stack_name, repo_name = generate_lambda_resource_names(deployment_name)
     lambda_config = get_configuration_value(config_file_path)
@@ -49,5 +50,5 @@ if __name__ == "__main__":
     deployment_name = sys.argv[1]
     config_json = sys.argv[3] if len(sys.argv) == 4 else "lambda_config.json"
 
-    info_json = describe_lambda_deployment(deployment_name, config_json)
-    print(json.dumps(info_json, indent=2))
+    info_json = describe(deployment_name, config_json)
+    pprint(info_json)

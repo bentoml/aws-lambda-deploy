@@ -1,9 +1,38 @@
+import os
 import subprocess
 import json
-import boto3
 import base64
+import shutil
 
 import docker
+import boto3
+from rich.console import Console
+
+
+# The Rich console to be used in the scripts for pretty printing
+console = Console(highlight=False)
+
+
+def is_present(project_path):
+    """
+    Checks for existing deployable and if found offers users 2 options
+        1. overide the existing repo (usefull if there is only config changes)
+        2. use the existing one for this deployment
+
+    if no existing deployment is found, return false
+    """
+    if os.path.exists(project_path):
+        response = console.input(
+            f"Existing deployable found [[b]{project_path}[/b]]! Override? (y/n): "
+        )
+        if response.lower() in ["yes", "y", ""]:
+            print("overiding existing deployable!")
+            shutil.rmtree(project_path)
+            return False
+        elif response.lower() in ["no", "n"]:
+            print("Using existing deployable!")
+            return True
+    return False
 
 
 def run_shell_command(command, cwd=None, env=None, shell_mode=False):
@@ -82,9 +111,7 @@ def push_docker_image_to_repository(
     if username is not None and password is not None:
         docker_push_kwags["auth_config"] = {"username": username, "password": password}
     try:
-        docker_client.images.push(
-            **docker_push_kwags, stream=True, decode=True
-        )
+        docker_client.images.push(**docker_push_kwags, stream=True, decode=True)
     except docker.errors.APIError as error:
         raise Exception(f"Failed to push docker image {image_tag}: {error}")
 

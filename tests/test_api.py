@@ -2,7 +2,6 @@ import os
 import sys
 import shutil
 import tempfile
-import urllib
 import time
 
 import requests
@@ -11,9 +10,9 @@ from pandas import DataFrame
 from classifier import TestService
 
 sys.path.append("./")
-from deploy import deploy_aws_lambda
-from describe import describe_lambda_deployment
-from delete import delete_aws_lambda
+from deploy import deploy
+from describe import describe
+from delete import delete
 
 
 class Setup:
@@ -45,8 +44,8 @@ class Setup:
         test_service.save_to_dir(self.saved_dir)
 
     def make_deployment(self):
-        deploy_aws_lambda(self.saved_dir, self.deployment_name, self.config_file)
-        info_json = describe_lambda_deployment(self.deployment_name, self.config_file)
+        deploy(self.saved_dir, self.deployment_name, self.config_file)
+        info_json = describe(self.deployment_name, self.config_file)
         url = info_json["EndpointUrl"] + "/{}"
 
         # ping /healthz to check if deployment is up
@@ -59,7 +58,7 @@ class Setup:
         return url
 
     def teardown(self):
-        delete_aws_lambda(self.deployment_name, self.config_file)
+        delete(self.deployment_name, self.config_file)
         shutil.rmtree(self.dirpath)
         print("Removed {}!".format(self.dirpath))
 
