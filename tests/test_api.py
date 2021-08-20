@@ -29,7 +29,7 @@ class Setup:
         # make config file
         config = """
             {
-                "region": "ap-south-1",
+                "region": "us-west-1",
                 "timeout": 60,
                 "memory_size": 1024
             }
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         print("Setup successful")
 
         # list of tests to perform
-        TESTS = [(test_json, "jsonapi"), (test_df, "dfapi"), (test_files, "fileapi")]
+        TESTS = [(test_json, "jsonapi"), (test_df, "dfapi")]
 
         for test_func, endpoint in TESTS:
             try:
