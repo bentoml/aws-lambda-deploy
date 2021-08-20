@@ -32,23 +32,11 @@ user who want to save cost and want to scale base on usage without administrativ
     $ python deploy.py $BENTO_BUNDLE_PATH my-lambda-deployment lambda_config.json
 
     # Sample output
-    Creating AWS Lambda deployable
-    Building SAM template
-    Building Image
-    0
-    Build Succeeded
-    Built Artifacts
-    ...
-    CloudFormation outputs from deployed stack
-    -------------------------------------------------------------------------------------------------
-    Outputs
-    -------------------------------------------------------------------------------------------------
-    Key                 EndpointUrl
-    Description         URL for endpoint
-    Value               https://j2gm5zn7z9.execute-api.us-west-1.amazonaws.com/Prod
-    -------------------------------------------------------------------------------------------------
-
-    Successfully created/updated stack - my-lambda-deployment-stack in us-west-1
+    Created AWS Lambda deployable [./IrisClassifier-20210817110233_99D507-lambda-deployable]
+    Built SAM template [./IrisClassifier-20210817110233_99D507-lambda-deployable/template.yaml]
+    Image built and pushed [1111111111.dkr.ecr.ap-south-1.amazonaws.com/iristest-repo]
+    Deployment Complete!
+    ```
 
 3. Get deployment information and status
 
@@ -57,12 +45,12 @@ $ python describe.py my-lambda-deployment
 
 # Sample output
 {
-  "StackId": "arn:aws:cloudformation:us-west-1:192023623294:stack/my-lambda-deployment-stack/29c15040-db7a-11eb-a721-028d528946df",
-  "StackName": "my-lambda-deployment-stack",
-  "StackStatus": "CREATE_COMPLETE",
-  "CreationTime": "07/02/2021, 21:12:09",
-  "LastUpdatedTime": "07/02/2021, 21:12:20",
-  "EndpointUrl": "https://j2gm5zn7z9.execute-api.us-west-1.amazonaws.com/Prod"
+   'StackId': 'arn:aws:cloudformation:ap-south-1:213386773652:stack/iristest-stack/ed94eac0-016f-11ec-aa25-066514cd8e28',
+   'StackName': 'iristest-stack',
+   'StackStatus': 'CREATE_COMPLETE',
+   'CreationTime': '08/20/2021, 04:34:38',
+   'LastUpdatedTime': '08/20/2021, 04:34:43',
+   'EndpointUrl': 'https://l7layje3l9.execute-api.ap-south-1.amazonaws.com/Prod'
 }
 ```
 
@@ -97,8 +85,9 @@ x-amz-cf-id: ArwZ03gbs6GooNN1fy4mPOgaEpM4h4n9gz2lpLYrHmeXZJuGUJgz0Q==
 $ python delete.py my-lambda-deployment
 
 # Sample output
-Delete CloudFormation Stack my-lambda-deployment-stack
-Delete ECR repo my-lambda-deployment-repo
+Deleted CloudFormation Stack: iristest-stack
+Deleted ECR repo: iristest-repo
+Deletion Complete!
 ```
 
 ## Deployment operations
@@ -176,3 +165,7 @@ Use Python API
 from  delete import delete_deployment
 delete_deployment(DEPLOYMENT_NAME, CONFIG_JSON)
 ```
+
+## Notes
+1. Currently the lambda deployment doesnot support `FileInput` handler. If you want to upload files to your bentoservice deployed on lambda, you can encode the binary data with base64 and then pass it via the `JsonInput` handler (you can also sent mulitple files this way).
+2. `multipart/form-data` is not supported in lambda deployments. The workaround will also be to use the `JsonInput` handler and add the base64 encoded files as different json value pairs
