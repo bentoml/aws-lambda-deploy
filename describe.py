@@ -1,11 +1,12 @@
-import sys
 import boto3
-import json
+import os
+import argparse
+
 from botocore.exceptions import ClientError
+from rich.pretty import pprint
 
 from aws_lambda import generate_lambda_resource_names
 from utils import get_configuration_value
-from rich.pretty import pprint
 
 
 def describe(deployment_name, config_file_path):
@@ -43,12 +44,20 @@ def describe(deployment_name, config_file_path):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        raise Exception(
-            "Please provide deployment name and the optional configuration file"
-        )
-    deployment_name = sys.argv[1]
-    config_json = sys.argv[3] if len(sys.argv) == 4 else "lambda_config.json"
+    parser = argparse.ArgumentParser(
+        description="Describe the bundle deployed on lambda",
+        epilog="Check out https://github.com/bentoml/aws-lambda-deploy#readme to know more",
+    )
+    parser.add_argument(
+        "deployment_name", help="The name you want to use for your deployment"
+    )
+    parser.add_argument(
+        "config_json",
+        help="(optional) The config file for your deployment",
+        default=os.path.join(os.getcwd(), "lambda_config.json"),
+        nargs="?",
+    )
+    args = parser.parse_args()
 
-    info_json = describe(deployment_name, config_json)
+    info_json = describe(args.deployment_name, args.config_json)
     pprint(info_json)

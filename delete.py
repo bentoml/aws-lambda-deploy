@@ -1,4 +1,7 @@
 import sys
+import argparse
+import os
+
 import boto3
 from botocore.exceptions import ClientError
 
@@ -25,12 +28,20 @@ def delete(deployment_name, config_json):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        raise Exception(
-            "Please provide deployment name and configuration json as parameters"
-        )
-    deployment_name = sys.argv[1]
-    config_json = sys.argv[2] if len(sys.argv) == 3 else "lambda_config.json"
+    parser = argparse.ArgumentParser(
+        description="Delete the bundle deployed on lambda",
+        epilog="Check out https://github.com/bentoml/aws-lambda-deploy#readme to know more",
+    )
+    parser.add_argument(
+        "deployment_name", help="The name you want to use for your deployment"
+    )
+    parser.add_argument(
+        "config_json",
+        help="(optional) The config file for your deployment",
+        default=os.path.join(os.getcwd(), "lambda_config.json"),
+        nargs="?",
+    )
+    args = parser.parse_args()
 
-    delete(deployment_name, config_json)
+    delete(args.deployment_name, args.config_json)
     console.print("[bold green]Deletion Complete!")
