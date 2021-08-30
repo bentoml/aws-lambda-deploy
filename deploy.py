@@ -1,5 +1,5 @@
-import sys
 import os
+import argparse
 
 from bentoml.saved_bundle import load_bento_service_metadata
 
@@ -103,14 +103,21 @@ def deploy(bento_bundle_path, deployment_name, config_json):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        raise Exception(
-            "Please provide bundle path, deployment and path to lambda"
-            " config file (optional)"
-        )
-    bento_bundle_path = sys.argv[1]
-    deployment_name = sys.argv[2]
-    config_json = sys.argv[3] if len(sys.argv) == 4 else "lambda_config.json"
+    parser = argparse.ArgumentParser(
+        description="Deploy the bentoml bundle to lambda.",
+        epilog="Check out https://github.com/bentoml/aws-lambda-deploy#readme to know more",
+    )
+    parser.add_argument("bento_bundle_path", help="Path to bentoml bundle")
+    parser.add_argument(
+        "deployment_name", help="The name you want to use for your deployment"
+    )
+    parser.add_argument(
+        "config_json",
+        help="(optional) The config file for your deployment",
+        default=os.path.join(os.getcwd(), "lambda_config.json"),
+        nargs="?",
+    )
+    args = parser.parse_args()
 
-    deploy(bento_bundle_path, deployment_name, config_json)
+    deploy(args.bento_bundle_path, args.deployment_name, args.config_json)
     console.print("[bold green]Deployment Complete!")
