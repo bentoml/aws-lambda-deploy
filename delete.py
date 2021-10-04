@@ -9,8 +9,7 @@ from aws_lambda import generate_lambda_resource_names
 from utils import get_configuration_value, console
 
 
-def delete(deployment_name, config_json):
-    lambda_config = get_configuration_value(config_json)
+def delete(deployment_name, lambda_config):
     _, stack_name, repo_name = generate_lambda_resource_names(deployment_name)
     cf_client = boto3.client("cloudformation", lambda_config["region"])
     cf_client.delete_stack(StackName=stack_name)
@@ -43,5 +42,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    delete(args.deployment_name, args.config_json)
+    lambda_config = get_configuration_value(args.config_json)
+    delete(args.deployment_name, lambda_config)
     console.print("[bold green]Deletion Complete!")

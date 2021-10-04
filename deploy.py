@@ -16,9 +16,8 @@ from aws_lambda import (
 )
 
 
-def deploy(bento_bundle_path, deployment_name, config_json):
+def deploy(bento_bundle_path, deployment_name, lambda_config):
     bento_metadata = load_bento_service_metadata(bento_bundle_path)
-    lambda_config = get_configuration_value(config_json)
     deployable_path = os.path.join(
         os.path.curdir,
         f"{bento_metadata.name}-{bento_metadata.version}-lambda-deployable",
@@ -101,6 +100,8 @@ def deploy(bento_bundle_path, deployment_name, config_json):
         )
         # print(return_code, stdout, stderr)
 
+    return deployable_path
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -119,5 +120,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    deploy(args.bento_bundle_path, args.deployment_name, args.config_json)
+    lambda_config = get_configuration_value(args.config_json)
+    deploy(args.bento_bundle_path, args.deployment_name, lambda_config)
     console.print("[bold green]Deployment Complete!")

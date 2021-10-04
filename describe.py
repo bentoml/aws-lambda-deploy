@@ -9,10 +9,9 @@ from aws_lambda import generate_lambda_resource_names
 from utils import get_configuration_value
 
 
-def describe(deployment_name, config_file_path):
+def describe(deployment_name, lambda_config):
     # get data about cf stack
     _, stack_name, repo_name = generate_lambda_resource_names(deployment_name)
-    lambda_config = get_configuration_value(config_file_path)
     cf_client = boto3.client("cloudformation", lambda_config["region"])
     try:
         stack_info = cf_client.describe_stacks(StackName=stack_name)
@@ -59,5 +58,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    info_json = describe(args.deployment_name, args.config_json)
+    lambda_config = get_configuration_value(args.config_file_path)
+    info_json = describe(args.deployment_name, lambda_config)
     pprint(info_json)
