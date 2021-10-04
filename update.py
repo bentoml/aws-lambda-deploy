@@ -1,17 +1,17 @@
 import argparse
 import os
 
-from utils import console
+from utils import console, get_configuration_value
 from deploy import deploy
 
 
-def update(bento_bundle_path, deployment_name, config_json):
+def update(bento_bundle_path, deployment_name, lambda_config):
     """
     in the case of AWS Lambda deployments, since we are using SAM cli for deploying
     the updation and deployment process is identical, hence you can just call the
     deploy functionality for updation also.
     """
-    deploy(bento_bundle_path, deployment_name, config_json)
+    deploy(bento_bundle_path, deployment_name, lambda_config)
 
 
 if __name__ == "__main__":
@@ -30,5 +30,6 @@ if __name__ == "__main__":
         nargs="?",
     )
     args = parser.parse_args()
-    update(args.bento_bundle_path, args.deployment_name, args.config_json)
+    lambda_config = get_configuration_value(args.config_json)
+    update(args.bento_bundle_path, args.deployment_name, lambda_config)
     console.print("[bold green]Updation Complete!")
