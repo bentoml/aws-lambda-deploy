@@ -100,6 +100,8 @@ def deploy(bento_bundle_path, deployment_name, lambda_config):
         )
         # print(return_code, stdout, stderr)
 
+    return deployable_path
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
