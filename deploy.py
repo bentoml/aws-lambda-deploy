@@ -3,12 +3,12 @@ import argparse
 
 from bentoml.saved_bundle import load_bento_service_metadata
 
-from utils import (
+from .utils import (
     get_configuration_value,
     create_ecr_repository_if_not_exists,
     console,
 )
-from aws_lambda import (
+from .aws_lambda import (
     generate_lambda_deployable,
     generate_lambda_resource_names,
     generate_aws_lambda_cloudformation_template_file,
