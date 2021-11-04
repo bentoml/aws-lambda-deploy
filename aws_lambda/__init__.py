@@ -1,11 +1,12 @@
-import shutil
 import os
 import re
-from pathlib import Path
+import shutil
 import subprocess
+from pathlib import Path
 
 from bentoml.utils.ruamel_yaml import YAML
-from utils import is_present
+
+from ..utils import is_present
 
 
 def generate_lambda_deployable(bento_bundle_path, project_path, lambda_config):
