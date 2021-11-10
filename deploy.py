@@ -1,19 +1,23 @@
-import os
 import argparse
+import os
 
 from bentoml.saved_bundle import load_bento_service_metadata
 
-from .utils import (
-    get_configuration_value,
-    create_ecr_repository_if_not_exists,
-    console,
-)
-from .aws_lambda import (
-    generate_lambda_deployable,
-    generate_lambda_resource_names,
-    generate_aws_lambda_cloudformation_template_file,
-    call_sam_command,
-)
+if __name__ == "__main__":  # use abs import if running as scripts
+    from aws_lambda import (call_sam_command,
+                            generate_aws_lambda_cloudformation_template_file,
+                            generate_lambda_deployable,
+                            generate_lambda_resource_names)
+    from utils import (console, create_ecr_repository_if_not_exists,
+                       get_configuration_value)
+
+else:
+    from .aws_lambda import (call_sam_command,
+                             generate_aws_lambda_cloudformation_template_file,
+                             generate_lambda_deployable,
+                             generate_lambda_resource_names)
+    from .utils import (console, create_ecr_repository_if_not_exists,
+                        get_configuration_value)
 
 
 def deploy(bento_bundle_path, deployment_name, lambda_config):

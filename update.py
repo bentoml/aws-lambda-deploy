@@ -1,8 +1,12 @@
 import argparse
 import os
 
-from .deploy import deploy
-from .utils import console, get_configuration_value
+if __name__ == '__main__':
+    from deploy import deploy
+    from utils import console, get_configuration_value
+else:
+    from .deploy import deploy
+    from .utils import console, get_configuration_value
 
 
 def update(bento_bundle_path, deployment_name, lambda_config):
