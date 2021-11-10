@@ -5,8 +5,12 @@ import boto3
 from botocore.exceptions import ClientError
 from rich.pretty import pprint
 
-from .aws_lambda import generate_lambda_resource_names
-from .utils import get_configuration_value
+if __name__ == '__main__':
+    from aws_lambda import generate_lambda_resource_names
+    from utils import get_configuration_value
+else:
+    from .aws_lambda import generate_lambda_resource_names
+    from .utils import get_configuration_value
 
 
 def describe(deployment_name, lambda_config):
@@ -58,6 +62,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    lambda_config = get_configuration_value(args.config_file_path)
+    lambda_config = get_configuration_value(args.config_json)
     info_json = describe(args.deployment_name, lambda_config)
     pprint(info_json)

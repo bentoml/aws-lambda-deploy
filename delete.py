@@ -5,8 +5,12 @@ import os
 import boto3
 from botocore.exceptions import ClientError
 
-from .aws_lambda import generate_lambda_resource_names
-from .utils import get_configuration_value, console
+if __name__ == '__main__':
+    from aws_lambda import generate_lambda_resource_names
+    from utils import get_configuration_value, console
+else:
+    from .aws_lambda import generate_lambda_resource_names
+    from .utils import get_configuration_value, console
 
 
 def delete(deployment_name, lambda_config):
