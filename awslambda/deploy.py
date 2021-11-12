@@ -1,23 +1,14 @@
-import argparse
 import os
 
 from bentoml.saved_bundle import load_bento_service_metadata
 
-if __name__ == "__main__":  # use abs import if running as scripts
-    from aws_lambda import (call_sam_command,
-                            generate_aws_lambda_cloudformation_template_file,
-                            generate_lambda_deployable,
-                            generate_lambda_resource_names)
-    from utils import (console, create_ecr_repository_if_not_exists,
-                       get_configuration_value)
-
-else:
-    from .aws_lambda import (call_sam_command,
-                             generate_aws_lambda_cloudformation_template_file,
-                             generate_lambda_deployable,
-                             generate_lambda_resource_names)
-    from .utils import (console, create_ecr_repository_if_not_exists,
-                        get_configuration_value)
+from .aws_lambda import (
+    call_sam_command,
+    generate_aws_lambda_cloudformation_template_file,
+    generate_lambda_deployable,
+    generate_lambda_resource_names,
+)
+from .utils import console, create_ecr_repository_if_not_exists
 
 
 def deploy(bento_bundle_path, deployment_name, lambda_config):
@@ -105,25 +96,3 @@ def deploy(bento_bundle_path, deployment_name, lambda_config):
         # print(return_code, stdout, stderr)
 
     return deployable_path
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Deploy the bentoml bundle to lambda.",
-        epilog="Check out https://github.com/bentoml/aws-lambda-deploy#readme to know more",
-    )
-    parser.add_argument("bento_bundle_path", help="Path to bentoml bundle")
-    parser.add_argument(
-        "deployment_name", help="The name you want to use for your deployment"
-    )
-    parser.add_argument(
-        "config_json",
-        help="(optional) The config file for your deployment",
-        default=os.path.join(os.getcwd(), "lambda_config.json"),
-        nargs="?",
-    )
-    args = parser.parse_args()
-
-    lambda_config = get_configuration_value(args.config_json)
-    deploy(args.bento_bundle_path, args.deployment_name, lambda_config)
-    console.print("[bold green]Deployment Complete!")
