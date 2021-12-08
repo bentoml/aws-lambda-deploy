@@ -136,6 +136,27 @@ def generate_aws_lambda_cloudformation_template_file(
                         "Properties": {
                             "Path": "/{}".format(api_name),
                             "Method": "post",
+                            "Auth": {
+                                "ResourcePolicy": {
+                                    "CustomStatements": [
+                                        {
+                                            "Action": "execute-api:Invoke",
+                                            "Effect": "Allow",
+                                            "Principal": "*",
+                                            "Resource": ["execute-api:/*"]
+                                        },
+                                        {
+                                            "Action": "execute-api:Invoke",
+                                            "Effect": "Deny",
+                                            "Principal": "*",
+                                            "Resource": ["execute-api:/*"],
+                                            "Condition": {
+                                                "StringNotEquals": {'aws:SourceIp': '174.52.11.65'}
+                                            }
+                                        },
+                                    ],
+                                },
+                            },
                         },
                     }
                 },
