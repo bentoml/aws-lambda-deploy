@@ -182,9 +182,7 @@ def call_sam_command(command, project_dir, region):
     proc = subprocess.Popen(
         command,
         cwd=project_dir,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
         env=copied_env,
     )
-    stdout, stderr = proc.communicate()
-    return proc.returncode, stdout.decode("utf-8"), stderr.decode("utf-8")
+    proc.communicate()
+    return proc.returncode

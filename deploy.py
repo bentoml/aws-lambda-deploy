@@ -47,7 +47,7 @@ def deploy(bento_bundle_path, deployment_name, config_json):
     console.print(f"Built SAM template [b][{template_file_path}][/b]")
 
     with console.status("Building image"):
-        return_code, stdout, stderr = call_sam_command(
+        return_code = call_sam_command(
             [
                 "build",
                 "--template-file",
@@ -58,13 +58,13 @@ def deploy(bento_bundle_path, deployment_name, config_json):
             project_dir=deployable_path,
             region=lambda_config["region"],
         )
-        # print(return_code, stdout, stderr)
+        assert return_code == 0, f'Command failed with return code: {return_code}'
 
     with console.status("Pushing image to ECR"):
         repository_id, registry_url = create_ecr_repository_if_not_exists(
             lambda_config["region"], repo_name
         )
-        return_code, stdout, stderr = call_sam_command(
+        return_code = call_sam_command(
             [
                 "package",
                 "--template-file",
@@ -77,11 +77,11 @@ def deploy(bento_bundle_path, deployment_name, config_json):
             project_dir=deployable_path,
             region=lambda_config["region"],
         )
-        # print(return_code, stdout, stderr)
+        assert return_code == 0, f'Command failed with return code: {return_code}'
     console.print(f"Image built and pushed [b][{registry_url}][/b]")
 
     with console.status("Deploying to Lambda"):
-        return_code, stdout, stderr = call_sam_command(
+        return_code = call_sam_command(
             [
                 "deploy",
                 "-t",
@@ -99,7 +99,7 @@ def deploy(bento_bundle_path, deployment_name, config_json):
             project_dir=deployable_path,
             region=lambda_config["region"],
         )
-        # print(return_code, stdout, stderr)
+        assert return_code == 0, f'Command failed with return code: {return_code}'
 
 
 if __name__ == "__main__":
