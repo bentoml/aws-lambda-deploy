@@ -4,7 +4,7 @@ import argparse
 import json
 import os
 
-import awslambda
+import bentoctl_lambda as awslambda
 
 parser = argparse.ArgumentParser()
 parser.add_argument("bento_bundle_path", help="Path to Bento bundle")
