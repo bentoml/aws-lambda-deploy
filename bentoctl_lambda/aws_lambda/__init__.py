@@ -2,9 +2,9 @@ import os
 import re
 import shutil
 import subprocess
-from pathlib import Path
+import logging
 
-from bentoml.utils.ruamel_yaml import YAML
+import yaml
 
 
 def generate_lambda_deployable(bento_bundle_path, project_path, lambda_config):
@@ -100,7 +100,6 @@ def generate_aws_lambda_cloudformation_template_file(
     timeout: int,
 ):
     template_file_path = os.path.join(project_dir, "template.yaml")
-    yaml = YAML()
     sam_config = {
         "AWSTemplateFormatVersion": "2010-09-09",
         "Transform": "AWS::Serverless-2016-10-31",
@@ -148,7 +147,8 @@ def generate_aws_lambda_cloudformation_template_file(
             },
         }
 
-    yaml.dump(sam_config, Path(template_file_path))
+    with open(template_file_path, "w") as f:
+        yaml.dump(sam_config, f, default_flow_style=False)
 
     # We add Outputs section separately, because the value should not
     # have "'" around !Sub
@@ -167,6 +167,7 @@ amazonaws.com/Prod"
 
 def call_sam_command(command, project_dir, region):
     command = ["sam"] + command
+    logging.info(" ".join(command))
 
     # We are passing region as part of the param, due to sam cli is not currently
     # using the region that passed in each command.  Set the region param as
@@ -182,4 +183,5 @@ def call_sam_command(command, project_dir, region):
         env=copied_env,
     )
     stdout, stderr = proc.communicate()
-    return proc.returncode, stdout.decode("utf-8"), stderr.decode("utf-8")
+    # return proc.returncode, stdout.decode("utf-8"), stderr.decode("utf-8")
+    print(stdout.decode("utf-8"), stderr.decode("utf-8"))

@@ -4,10 +4,10 @@ from botocore.exceptions import ClientError
 from .aws_lambda import generate_lambda_resource_names
 
 
-def describe(deployment_name, lambda_config):
+def describe(deployment_name, deployment_spec):
     # get data about cf stack
     _, stack_name, repo_name = generate_lambda_resource_names(deployment_name)
-    cf_client = boto3.client("cloudformation", lambda_config["region"])
+    cf_client = boto3.client("cloudformation", deployment_spec["region"])
     try:
         stack_info = cf_client.describe_stacks(StackName=stack_name)
     except ClientError:

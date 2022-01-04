@@ -1,6 +1,5 @@
 import os
-
-from bentoml.saved_bundle import load_bento_service_metadata
+from pathlib import Path
 
 from .aws_lambda import (
     call_sam_command,
@@ -8,74 +7,81 @@ from .aws_lambda import (
     generate_lambda_deployable,
     generate_lambda_resource_names,
 )
-from .utils import console, create_ecr_repository_if_not_exists
+from .utils import (
+    console,
+    create_ecr_repository_if_not_exists,
+)
+
+import bentoml
 
 
-def deploy(bento_bundle_path, deployment_name, lambda_config):
-    bento_metadata = load_bento_service_metadata(bento_bundle_path)
+def deploy(bento_path, deployment_name, deployment_spec):
+    # for now change cwd back after callign bentoml.load()
+    cwd = Path.cwd()
+    breakpoint()
+    bento_svc = bentoml.load(bento_path)
+    os.chdir(cwd)
+    bento_tag = bento_svc.tag
     deployable_path = os.path.join(
         os.path.curdir,
-        f"{bento_metadata.name}-{bento_metadata.version}-lambda-deployable",
+        f"{bento_tag.name}-{bento_tag.version}-lambda-deployable",
     )
 
-    generate_lambda_deployable(bento_bundle_path, deployable_path, lambda_config)
+    generate_lambda_deployable(bento_path, deployable_path, deployment_spec)
     (
-        template_name,
+        _,
         stack_name,
         repo_name,
     ) = generate_lambda_resource_names(deployment_name)
     console.print(f"Created AWS Lambda deployable [b][{deployable_path}][/b]")
 
-    api_names = [api.name for api in bento_metadata.apis]
     template_file_path = generate_aws_lambda_cloudformation_template_file(
         deployment_name=deployment_name,
         project_dir=deployable_path,
-        api_names=api_names,
-        bento_service_name=bento_metadata.name,
+        api_names=list(bento_svc._apis),
+        bento_service_name=bento_svc.name,
         docker_context=deployable_path,
         docker_file="Dockerfile-lambda",
         docker_tag=repo_name,
-        memory_size=lambda_config["memory_size"],
-        timeout=lambda_config["timeout"],
+        memory_size=deployment_spec["memory_size"],
+        timeout=deployment_spec["timeout"],
     )
     console.print(f"Built SAM template [b][{template_file_path}][/b]")
 
     with console.status("Building image"):
-        return_code, stdout, stderr = call_sam_command(
+        call_sam_command(
             [
                 "build",
                 "--template-file",
                 template_file_path.split("/")[-1],
                 "--build-dir",
-                os.path.join(deployable_path, "build"),
+                "build",
             ],
             project_dir=deployable_path,
-            region=lambda_config["region"],
+            region=deployment_spec["region"],
         )
-        # print(return_code, stdout, stderr)
 
     with console.status("Pushing image to ECR"):
         repository_id, registry_url = create_ecr_repository_if_not_exists(
-            lambda_config["region"], repo_name
+            deployment_spec["region"], repo_name
         )
-        return_code, stdout, stderr = call_sam_command(
+        call_sam_command(
             [
                 "package",
                 "--template-file",
-                os.path.join(deployable_path, "build", "template.yaml"),
+                os.path.join("build", "template.yaml"),
                 "--output-template-file",
                 "package-template.yaml",
                 "--image-repository",
                 registry_url,
             ],
             project_dir=deployable_path,
-            region=lambda_config["region"],
+            region=deployment_spec["region"],
         )
-        # print(return_code, stdout, stderr)
     console.print(f"Image built and pushed [b][{registry_url}][/b]")
 
     with console.status("Deploying to Lambda"):
-        return_code, stdout, stderr = call_sam_command(
+        call_sam_command(
             [
                 "deploy",
                 "-t",
@@ -87,12 +93,11 @@ def deploy(bento_bundle_path, deployment_name, lambda_config):
                 "--capabilities",
                 "CAPABILITY_IAM",
                 "--region",
-                lambda_config["region"],
+                deployment_spec["region"],
                 "--no-confirm-changeset",
             ],
             project_dir=deployable_path,
-            region=lambda_config["region"],
+            region=deployment_spec["region"],
         )
-        # print(return_code, stdout, stderr)
 
     return deployable_path

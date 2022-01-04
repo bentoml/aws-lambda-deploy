@@ -1,13 +1,14 @@
-import os
-import subprocess
-import json
 import base64
+import json
+import os
 import shutil
+import subprocess
 
-import docker
 import boto3
+import docker
+import fs
+from bentoml.bentos import Bento
 from rich.console import Console
-
 
 # The Rich console to be used in the scripts for pretty printing
 console = Console(highlight=False)
@@ -151,3 +152,8 @@ def create_s3_bucket_if_not_exists(bucket_name, region):
 def generate_docker_image_tag(registry_uri, bento_name, bento_version):
     image_tag = f"{bento_name}-{bento_version}".lower()
     return f"{registry_uri}:{image_tag}"
+
+
+def get_tag_from_path(path: str):
+    bento = Bento.from_fs(fs.open_fs(path))
+    return bento.tag
