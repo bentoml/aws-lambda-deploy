@@ -1,11 +1,10 @@
+import logging
 import os
 import re
 import shutil
 import subprocess
-import logging
 
 import yaml
-
 
 logger = logging.getLogger(__name__)
 

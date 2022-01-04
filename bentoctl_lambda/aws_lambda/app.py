@@ -4,7 +4,6 @@ import sys
 from bentoml import load
 from mangum import Mangum
 
-
 api_name = os.environ["BENTOML_API_NAME"]
 print('loading app: ', api_name)
 print('Loading from dir...')

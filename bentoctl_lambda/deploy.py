@@ -1,18 +1,15 @@
 import os
 from pathlib import Path
 
+import bentoml
+
 from .aws_lambda import (
     call_sam_command,
     generate_aws_lambda_cloudformation_template_file,
     generate_lambda_deployable,
     generate_lambda_resource_names,
 )
-from .utils import (
-    console,
-    create_ecr_repository_if_not_exists,
-)
-
-import bentoml
+from .utils import console, create_ecr_repository_if_not_exists
 
 
 def deploy(bento_path, deployment_name, deployment_spec):
