@@ -7,6 +7,9 @@ import logging
 import yaml
 
 
+logger = logging.getLogger(__name__)
+
+
 def generate_lambda_deployable(bento_bundle_path, project_path, lambda_config):
     current_dir_path = os.path.dirname(__file__)
 
@@ -167,7 +170,7 @@ amazonaws.com/Prod"
 
 def call_sam_command(command, project_dir, region):
     command = ["sam"] + command
-    logging.info(" ".join(command))
+    logger.debug(f"SAM Command: {' '.join(command)}")
 
     # We are passing region as part of the param, due to sam cli is not currently
     # using the region that passed in each command.  Set the region param as
@@ -183,5 +186,11 @@ def call_sam_command(command, project_dir, region):
         env=copied_env,
     )
     stdout, stderr = proc.communicate()
-    # return proc.returncode, stdout.decode("utf-8"), stderr.decode("utf-8")
-    print(stdout.decode("utf-8"), stderr.decode("utf-8"))
+    if proc.returncode != 0:
+        raise Exception(
+            f"SAM command failed with return code {proc.returncode}.\n"
+            f"stdout: {stdout.decode('utf-8')}\n"
+            f"stderr: {stderr.decode('utf-8')}"
+        )
+    else:
+        logger.debug(f"SAM Command stdout: {stdout.decode('utf-8')}")
