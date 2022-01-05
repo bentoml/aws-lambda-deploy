@@ -1,12 +1,13 @@
-# AWS Lambda deployment tool
+<div align="center">
+    <h1> AWS Lambda Operator </h1>
+    <p>
+        <img src="https://user-images.githubusercontent.com/5261489/148166548-7b83bb3c-4818-4017-81f9-57cd8fb7872c.png" alt="aws lambda logo" width=25%/>
+    </p>
+</div>
 
 AWS Lambda is a great service for quickly deploy service to the cloud for immediate
 access. It's ability to auto scale resources base on usage make it attractive to
 user who want to save cost and want to scale base on usage without administrative overhead.
-
-<p align="center">
-  <img src="demo.gif" alt="demo of aws-lambda-deploy tool"/>
-</p>
 
 ## Prerequisites
 
@@ -16,11 +17,94 @@ user who want to save cost and want to scale base on usage without administrativ
 - AWS SAM CLI (>=1.27). Installation instructions https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
 - Docker is installed and running on the machine.
     - Install instruction: https://docs.docker.com/install
-- Install required python packages
-    - `$ pip install -r requirements.txt`
+- (Optional) bentoctl
+    - `$ pip install bentoctl`
 
+## Quickstart with bentoctl
 
-## Deploy IrisClassifier from BentoML quick start guide to AWS Lambda
+Bentoctl is a CLI tool that you can use to deploy bentos to Lambda. It helps in configuring and managing your deployments super easy. 
+
+1. Install bentoctl via pip
+```
+$ pip install bentoctl
+```
+
+2. Add AWS Lambda operator
+```
+$ bentoctl operator add aws-lambda
+```
+
+3. Deploy to lambda. When you call `bentoctl deploy` without passing a deployment_config.yaml it will launch interactive program to generate `deployment_config.yaml` file for your deployment.
+```
+$ bentoctl deploy --display-deployment-info
+
+Bentoctl Interactive Deployment Spec Builder
+
+Welcome! You are now in interactive mode.
+
+This mode will help you setup the deployment_spec.yaml file required for
+deployment. Fill out the appropriate values for the fields.
+
+(deployment spec will be saved to: ./deployment_spec.yaml)
+
+api_version: v1
+metadata:
+    name: test
+    operator: aws-lambda
+spec:
+    bento: testservice
+    region: us-west-1
+    timeout: 10
+    memory_size: 512
+    
+filename for deployment_spec [deployment_spec.yaml]:
+deployment spec file exists! Should I override? [Y/n]: y
+deployment spec generated to: deployment_spec.yaml
+
+deploying with deployment_spec.yaml...
+Success!
+
+{
+│   'StackId': 'arn:aws:cloudformation:ap-south-1:213386773652:stack/test-stack/6e766f80-6992-11ec-b5ac-06ea5db619ac',
+│   'StackName': 'test-stack',
+│   'StackStatus': 'UPDATE_COMPLETE',
+│   'CreationTime': '12/30/2021, 17:03:38',
+│   'LastUpdatedTime': '01/04/2022, 16:37:14',
+│   'EndpointUrl': 'https://fwxcofm8q7.execute-api.ap-south-1.amazonaws.com/Prod'
+}
+```
+
+4. Check endpoint. We will try and test the endpoint The url for the endpoint given in the output of the describe command or you can also check the API Gateway through the AWS console.
+
+    ```bash
+    $ curl -i \
+      --header "Content-Type: application/json" \
+      --request POST \
+      --data '[[5.1, 3.5, 1.4, 0.2]]' \
+      https://fwxcofm8q7.execute-api.ap-south-1.amazonaws.com/Prod/predict
+
+    # Sample output
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Content-Length: 3
+    Connection: keep-alive
+    Date: Tue, 21 Jan 2020 22:43:17 GMT
+    x-amzn-RequestId: f49d29ed-c09c-4870-b362-4cf493556cf4
+    x-amz-apigw-id: GrC0AEHYPHcF3aA=
+    X-Amzn-Trace-Id: Root=1-5e277e7f-e9c0e4c0796bc6f4c36af98c;Sampled=0
+    X-Cache: Miss from cloudfront
+    Via: 1.1 bb248e7fabd9781d3ed921f068507334.cloudfront.net (CloudFront)
+    X-Amz-Cf-Pop: SFO5-C1
+    X-Amz-Cf-Id: HZzIJUcEUL8aBI0KcmG35rsG-71KSOcLUNmuYR4wdRb6MZupv9IOpA==
+
+    [0]%
+
+5. Delete deployment
+```
+$ bentoctl delete -f deployment_config.yaml
+```
+
+## Quickstart with scripts
 
 1. Build and save Bento Bundle from [BentoML quick start guide](https://github.com/bentoml/BentoML/blob/master/guides/quick-start/bentoml-quick-start-guide.ipynb)
 
@@ -32,13 +116,13 @@ user who want to save cost and want to scale base on usage without administrativ
 
     ```bash
     $ BENTO_BUNDLE_PATH=$(bentoml get IrisClassifier:latest --print-location -q)
-    $ python deploy.py $BENTO_BUNDLE_PATH my-lambda-deployment lambda_config.json
+    $ ./deploy $BENTO_BUNDLE_PATH my-lambda-deployment lambda_config.json
     ```
 
    Get deployment information and status
 
     ```bash
-    $ python describe.py my-lambda-deployment
+    $ ./describe my-lambda-deployment
 
     # Sample output
     {
@@ -79,81 +163,102 @@ user who want to save cost and want to scale base on usage without administrativ
 5. Delete Lambda deployment
 
     ```bash
-    $ python delete.py my-lambda-deployment
+    $ ./delete my-lambda-deployment
     ```
 
-## Deployment operations
-
-### Configuration options
+## Configuration options
 
 * `region`: AWS region for Lambda deployment
 * `timeout`: Timeout per request
 * `memory_size`: The memory for your function, set a value between 128 MB and 10,240 MB in 1-MB increments
 
+## Deployment operations
+
+The recommendated way to use operators is via the bentoctl CLI but you can also use this repo as standalone via the
+scripts or python APIs. 
+
 ### Create a deployment
 
-Use CLI
+Use bentoctl
 
 ```bash
-python deploy.py <Bento_bundle_path> <Deployment_name> <Config_JSON default is ./lambda_config.json>
+bentoctl deploy -f <deployment_config_name>
 ```
 
-Example:
+Use Scripts
 
 ```bash
-MY_BUNDLE_PATH=${bentoml get IrisClassifier:latest --print-location -q)
-python deploy.py $MY_BUNDLE_PATH my_first_deployment lambda_config.json
+./deploy <Bento_path> <Deployment_name> <Config_JSON default is ./lambda_config.json>
 ```
 
 Use Python API
 
 ```python
-from deploy import deploy_aws_lambda
+from bentoctl_awslambda.deploy import deploy
 
-deploy_aws_lambda(BENTO_BUNDLE_PATH, DEPLOYMENT_NAME, CONFIG_JSON)
+deploy(BENTO_PATH, DEPLOYMENT_NAME, DEPLOYMENT_SPEC)
 ```
 
 ### Update a deployment
 
-Use CLI
+Use bentoctl
 
 ```bash
-python update.py <Bento_bundle_path> <Deployment_name> <Config_JSON>
+bentoctl update -f <path to deployment_config.yaml>
+```
+
+Use Scripts
+
+```bash
+./update <Bento_path> <Deployment_name> <Config_JSON>
 ```
 
 Use Python API
 
 ```python
-from update import update_aws_lambda
-update_aws_lambda(BENTO_BUNDLE_PATH, DEPLOYMENT_NAME, CONFIG_JSON)
+from bentoctl_awslambda.update import update
+update(BENTO_PATH, DEPLOYMENT_NAME, DEPLOYMENT_SPEC)
 ```
 
 ### Get deployment's status and information
 
-Use CLI
+Use bentoctl
 
 ```bash
-python describe.py <Deployment_name> <Config_JSON>
+bentoctl describe -f <path to deployment_config.yaml>
+````
+
+Use Scripts
+
+```bash
+./describe <Deployment_name> <Config_JSON>
 ```
 
 Use Python API
 
 ```python
-from describe import describe_deployment
-describe_deployment(DEPLOYMENT_NAME, CONFIG_JSON)
+from bentoctl_awslambda.describe import describe
+describe(DEPLOYMENT_NAME, DEPLOYMENT_SPEC)
 ```
 
 ### Delete deployment
 
-Use CLI
+
+Use bentoctl
 
 ```bash
-python delete.py <Deployment_name> <Config_JSON>
+bentoctl update -f <path to deployment_config.yaml>
+````
+
+Use Scripts
+
+```bash
+./delete <Deployment_name> <Config_JSON>
 ```
 
 Use Python API
 
 ```python
-from  delete import delete_deployment
-delete_deployment(DEPLOYMENT_NAME, CONFIG_JSON)
+from  bentoctl_awslambda.delete import delete
+delete(DEPLOYMENT_NAME, CONFIG_JSON)
 ```
