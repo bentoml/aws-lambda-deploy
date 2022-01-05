@@ -15,7 +15,6 @@ from .utils import console, create_ecr_repository_if_not_exists
 def deploy(bento_path, deployment_name, deployment_spec):
     # for now change cwd back after callign bentoml.load()
     cwd = Path.cwd()
-    breakpoint()
     bento_svc = bentoml.load(bento_path)
     os.chdir(cwd)
     bento_tag = bento_svc.tag
