@@ -9,6 +9,25 @@ AWS Lambda is a great service for quickly deploy service to the cloud for immedi
 access. It's ability to auto scale resources base on usage make it attractive to
 user who want to save cost and want to scale base on usage without administrative overhead.
 
+
+<!--ts-->
+
+## Table of Contents
+
+   * [Prerequisites](#prerequisites)
+   * [Quickstart with bentoctl](#quickstart-with-bentoctl)
+   * [Quickstart with scripts](#quickstart-with-scripts)
+   * [Configuration options](#configuration-options)
+   * [Deployment operations](#deployment-operations)
+      * [Create a deployment](#create-a-deployment)
+      * [Update a deployment](#update-a-deployment)
+      * [Get deployment's status and information](#get-deployments-status-and-information)
+      * [Delete deployment](#delete-deployment)
+
+<!-- Added by: jjmachan, at: Wednesday 05 January 2022 11:50:28 AM IST -->
+
+<!--te-->
+
 ## Prerequisites
 
 - An active AWS account configured on the machine with AWS CLI installed and configured
