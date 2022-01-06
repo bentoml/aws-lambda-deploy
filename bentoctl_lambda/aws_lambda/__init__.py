@@ -1,19 +1,16 @@
-import shutil
+import logging
 import os
 import re
-from pathlib import Path
+import shutil
 import subprocess
 
-from bentoml.utils.ruamel_yaml import YAML
-from utils import is_present
+import yaml
+
+logger = logging.getLogger(__name__)
 
 
 def generate_lambda_deployable(bento_bundle_path, project_path, lambda_config):
     current_dir_path = os.path.dirname(__file__)
-
-    # is existing repo is found and user said not to overide, use existing deployable
-    if is_present(project_path):
-        return
 
     # copy bento_bundle to project_path
     shutil.copytree(bento_bundle_path, project_path)
@@ -105,7 +102,6 @@ def generate_aws_lambda_cloudformation_template_file(
     timeout: int,
 ):
     template_file_path = os.path.join(project_dir, "template.yaml")
-    yaml = YAML()
     sam_config = {
         "AWSTemplateFormatVersion": "2010-09-09",
         "Transform": "AWS::Serverless-2016-10-31",
@@ -153,7 +149,8 @@ def generate_aws_lambda_cloudformation_template_file(
             },
         }
 
-    yaml.dump(sam_config, Path(template_file_path))
+    with open(template_file_path, "w") as f:
+        yaml.dump(sam_config, f, default_flow_style=False)
 
     # We add Outputs section separately, because the value should not
     # have "'" around !Sub
@@ -172,6 +169,7 @@ amazonaws.com/Prod"
 
 def call_sam_command(command, project_dir, region):
     command = ["sam"] + command
+    logger.debug(f"SAM Command: {' '.join(command)}")
 
     # We are passing region as part of the param, due to sam cli is not currently
     # using the region that passed in each command.  Set the region param as
@@ -187,4 +185,11 @@ def call_sam_command(command, project_dir, region):
         env=copied_env,
     )
     stdout, stderr = proc.communicate()
-    return proc.returncode, stdout.decode("utf-8"), stderr.decode("utf-8")
+    if proc.returncode != 0:
+        raise Exception(
+            f"SAM command failed with return code {proc.returncode}.\n"
+            f"stdout: {stdout.decode('utf-8')}\n"
+            f"stderr: {stderr.decode('utf-8')}"
+        )
+    else:
+        logger.debug(f"SAM Command stdout: {stdout.decode('utf-8')}")
