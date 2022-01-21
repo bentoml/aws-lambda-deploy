@@ -6,21 +6,36 @@ import subprocess
 
 import yaml
 
+from bentoctl_lambda.utils import get_metadata
+
 logger = logging.getLogger(__name__)
 
 
-def generate_lambda_deployable(bento_bundle_path, project_path, lambda_config):
+def generate_lambda_deployable(bento_path, project_path, lambda_config):
+    bento_metadata = get_metadata(bento_path)
     current_dir_path = os.path.dirname(__file__)
 
     # copy bento_bundle to project_path
-    shutil.copytree(bento_bundle_path, project_path)
+    shutil.copytree(bento_path, project_path)
 
-    # Copy Dockerfile with added support for Lambda
-    shutil.copy(
-        os.path.join(current_dir_path, "Dockerfile"),
-        os.path.join(project_path, "Dockerfile-lambda"),
-    )
+    # Make docker file with dockerfile template
+    template_file = os.path.join(current_dir_path, "Dockerfile.template")
+    dockerfile = os.path.join(project_path, "Dockerfile-lambda")
+    with open(template_file, "r", encoding="utf-8") as f:
+        dockerfile_template = f.read()
 
+    with open(dockerfile, "w") as dockerfile:
+        dockerfile.write(
+            dockerfile_template.format(
+                bentoml_version=bento_metadata["bentoml_version"],
+                python_version=bento_metadata["python_version"],
+            )
+        )
+    # shutil.copy(
+    #     os.path.join(current_dir_path, "Dockerfile"),
+    #     os.path.join(project_path, "Dockerfile-lambda"),
+    # )
+    #
     # copy the entrypoint
     shutil.copy(
         os.path.join(current_dir_path, "entry.sh"),
@@ -108,7 +123,6 @@ def generate_aws_lambda_cloudformation_template_file(
         "Globals": {
             "Function": {"Timeout": timeout, "MemorySize": memory_size},
             "Api": {
-                "BinaryMediaTypes": ["image~1*"],
                 "Cors": "'*'",
                 "Auth": {
                     "ApiKeyRequired": False,

@@ -34,7 +34,7 @@ def deploy(bento_path, deployment_name, deployment_spec):
     template_file_path = generate_aws_lambda_cloudformation_template_file(
         deployment_name=deployment_name,
         project_dir=deployable_path,
-        api_names=list(bento_svc._apis),
+        api_names=list(bento_svc.apis),
         bento_service_name=bento_svc.name,
         docker_context=deployable_path,
         docker_file="Dockerfile-lambda",

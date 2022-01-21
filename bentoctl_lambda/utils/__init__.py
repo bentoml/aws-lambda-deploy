@@ -154,6 +154,17 @@ def generate_docker_image_tag(registry_uri, bento_name, bento_version):
     return f"{registry_uri}:{image_tag}"
 
 
-def get_tag_from_path(path: str):
+def get_metadata(path: str):
+    metadata = {}
+
     bento = Bento.from_fs(fs.open_fs(path))
-    return bento.tag
+    metadata["tag"] = bento.tag
+    metadata["bentoml_version"] = ".".join(bento.info.bentoml_version.split(".")[:3])
+
+    python_version_txt_path = "env/python/version.txt"
+    python_version_txt_path = os.path.join(path, python_version_txt_path)
+    with open(python_version_txt_path, "r") as f:
+        python_version = f.read()
+    metadata["python_version"] = ".".join(python_version.split(".")[:2])
+
+    return metadata
