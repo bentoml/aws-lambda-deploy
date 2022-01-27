@@ -123,6 +123,7 @@ def generate_aws_lambda_cloudformation_template_file(
         "Globals": {
             "Function": {"Timeout": timeout, "MemorySize": memory_size},
             "Api": {
+                "BinaryMediaTypes": ["*~1*"],
                 "Cors": "'*'",
                 "Auth": {
                     "ApiKeyRequired": False,
