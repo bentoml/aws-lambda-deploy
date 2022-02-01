@@ -205,9 +205,9 @@ def call_sam_command(command, project_dir, regions):
     # using the region that passed in each command.
     # Since there can be multiple regions that we want to deploy in we iterate over
     # each region setting as AWS_DEFAULT_REGION for the subprocess call
-    copied_env = os.environ.copy()
     return_codes = []
     for region in regions:
+        copied_env = os.environ.copy()
         copied_env["AWS_DEFAULT_REGION"] = region
 
         proc = subprocess.Popen(
