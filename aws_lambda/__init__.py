@@ -101,6 +101,7 @@ def generate_aws_lambda_cloudformation_template_file(
     docker_tag,
     docker_file,
     docker_context,
+    cross_account_access_roles: list[string],
     memory_size: int,
     timeout: int,
 ):
@@ -173,6 +174,12 @@ def generate_aws_lambda_cloudformation_template_file(
                 "DockerContext": "./",
             },
         }
+        if len(cross_account_access_roles):
+            for cross_account_access_role in cross_account_access_roles:
+                cross_account_resource_policy = {"Action": "execute-api:Invoke",
+                                                 "Effect": "Allow",
+                                                 "Principal": cross_account_access_role}
+                sam_config["Resources"][api_name]["Properties"]["Events"]["Api"]["Properties"]["Auth"]["ResourcePolicy"]["CustomStatements"].append(cross_account_resource_policy)
 
     yaml.dump(sam_config, Path(template_file_path))
 
@@ -191,19 +198,23 @@ amazonaws.com/Prod"
     return template_file_path
 
 
-def call_sam_command(command, project_dir, region):
+def call_sam_command(command, project_dir, regions):
     command = ["sam"] + command
 
-    # We are passing region as part of the param, due to sam cli is not currently
-    # using the region that passed in each command.  Set the region param as
-    # AWS_DEFAULT_REGION for the subprocess call
-    copied_env = os.environ.copy()
-    copied_env["AWS_DEFAULT_REGION"] = region
+    # We are passing regions as part of the param, due to sam cli is not currently
+    # using the region that passed in each command.
+    # Since there can be multiple regions that we want to deploy in we iterate over
+    # each region setting as AWS_DEFAULT_REGION for the subprocess call
+    return_codes = []
+    for region in regions:
+        copied_env = os.environ.copy()
+        copied_env["AWS_DEFAULT_REGION"] = region
 
-    proc = subprocess.Popen(
-        command,
-        cwd=project_dir,
-        env=copied_env,
-    )
-    proc.communicate()
-    return proc.returncode
+        proc = subprocess.Popen(
+            command,
+            cwd=project_dir,
+            env=copied_env,
+        )
+        proc.communicate()
+        return_codes.append(proc.returncode)
+    return sum(map(abs, return_codes)) #Won't give a meaningful return code anymore -- but it'll at least be `non 0` on an error
