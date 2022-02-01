@@ -199,23 +199,20 @@ amazonaws.com/Prod"
     return template_file_path
 
 
-def call_sam_command(command, project_dir, regions):
+def call_sam_command(command, project_dir, region):
     command = ["sam"] + command
 
     # We are passing regions as part of the param, due to sam cli is not currently
     # using the region that passed in each command.
     # Since there can be multiple regions that we want to deploy in we iterate over
     # each region setting as AWS_DEFAULT_REGION for the subprocess call
-    return_codes = []
-    for region in regions:
-        copied_env = os.environ.copy()
-        copied_env["AWS_DEFAULT_REGION"] = region
+    copied_env = os.environ.copy()
+    copied_env["AWS_DEFAULT_REGION"] = region
 
-        proc = subprocess.Popen(
-            command,
-            cwd=project_dir,
-            env=copied_env,
-        )
-        proc.communicate()
-        return_codes.append(proc.returncode)
-    return sum(map(abs, return_codes)) #Won't give a meaningful return code anymore -- but it'll at least be `non 0` on an error
+    proc = subprocess.Popen(
+        command,
+        cwd=project_dir,
+        env=copied_env,
+    )
+    proc.communicate()
+    return proc.returncode
