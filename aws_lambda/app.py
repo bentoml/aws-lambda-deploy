@@ -19,7 +19,7 @@ this_module = sys.modules[__name__]
 def api_func(event, context):
     if type(event) is dict and "event" in event and (not "headers" in event and "body" in event):
         event = event["event"] #Manually invoking lambda stuffs the event into the 'event' key
-    if type(event) is dict "headers" in event and "body" in event:
+    if type(event) is dict and "headers" in event and "body" in event:
         prediction = bento_service_api.handle_aws_lambda_event(event)
         print(
             json.dumps(
