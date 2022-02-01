@@ -101,7 +101,7 @@ def generate_aws_lambda_cloudformation_template_file(
     docker_tag,
     docker_file,
     docker_context,
-    cross_account_access_roles: string,
+    cross_account_access_roles: list[string],
     memory_size: int,
     timeout: int,
 ):
