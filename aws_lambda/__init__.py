@@ -3,6 +3,7 @@ import os
 import re
 from pathlib import Path
 import subprocess
+from typing import List
 
 from bentoml.utils.ruamel_yaml import YAML
 from utils import is_present
@@ -101,7 +102,7 @@ def generate_aws_lambda_cloudformation_template_file(
     docker_tag,
     docker_file,
     docker_context,
-    cross_account_access_roles: list[string],
+    cross_account_access_roles: List[str],
     memory_size: int,
     timeout: int,
 ):
