@@ -41,7 +41,7 @@ def deploy(bento_bundle_path, deployment_name, config_json):
         docker_context=deployable_path,
         docker_file="Dockerfile-lambda",
         docker_tag=repo_name,
-        cross_account_access_roles=lambda_config["cross_account_role"],
+        cross_account_access_roles=lambda_config["cross_account_roles"],
         memory_size=lambda_config["memory_size"],
         timeout=lambda_config["timeout"],
     )

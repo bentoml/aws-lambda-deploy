@@ -176,12 +176,13 @@ def generate_aws_lambda_cloudformation_template_file(
             },
         }
         if len(cross_account_access_roles):
-            for cross_account_access_role in cross_account_access_roles:
-                cross_account_resource_policy = {"Action": "execute-api:Invoke",
-                                                 "Effect": "Allow",
-                                                 "Principal": cross_account_access_role}
-                sam_config["Resources"][api_name]["Properties"]["Events"]["Api"]["Properties"]["Auth"]["ResourcePolicy"]["CustomStatements"].append(cross_account_resource_policy)
-
+            for i, cross_account_access_role in enumerate(cross_account_access_roles):
+                sam_config["Resources"]["crossAccountPermission{}".format(i)] = {
+                    "Type": "AWS::Lambda::Permission",
+                    "Properties": {"FunctionName": {"Fn::GetAtt" : [api_name, "Arn"]},
+                                   "Action": "lambda:InvokeFunction",
+                                   "Principal" : cross_account_access_role}
+                }
     yaml.dump(sam_config, Path(template_file_path))
 
     # We add Outputs section separately, because the value should not
