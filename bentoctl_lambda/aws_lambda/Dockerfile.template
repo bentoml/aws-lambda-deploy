@@ -1,6 +1,4 @@
-ARG BENTOML_VERSION=1.0.0a1
-ARG PYTHON_VERSION=3.8
-FROM bentoml/bento-server:$BENTOML_VERSION-python$PYTHON_VERSION-debian-runtime
+FROM bentoml/bento-server:{bentoml_version}-python{python_version}-debian-runtime
 
 ARG UID=1034
 ARG GID=1034
