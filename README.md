@@ -33,7 +33,6 @@ user who want to save cost and want to scale base on usage without administrativ
 - An active AWS account configured on the machine with AWS CLI installed and configured
     - Install instruction: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
     - Configure AWS account instruction: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
-- AWS SAM CLI (>=1.27). Installation instructions https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
 - Docker is installed and running on the machine.
     - Install instruction: https://docs.docker.com/install
 - (Optional) bentoctl

@@ -88,12 +88,12 @@ def generate_aws_compatible_string(*items, max_length=63):
 
 
 def generate_lambda_resource_names(name):
-    sam_template_name = generate_aws_compatible_string(f"{name}-template")
+    cf_template_name = generate_aws_compatible_string(f"{name}-template")
     deployment_stack_name = generate_aws_compatible_string(f"{name}-stack")
     # repo should be (?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*''
     repo_name = generate_aws_compatible_string(f"{name}-repo").lower()
 
-    return sam_template_name, deployment_stack_name, repo_name
+    return cf_template_name, deployment_stack_name, repo_name
 
 
 def generate_docker_image_tag(registry_uri, bento_name, bento_version):
