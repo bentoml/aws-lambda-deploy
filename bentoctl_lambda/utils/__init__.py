@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import subprocess
+import logging
 
 import boto3
 import docker
@@ -12,6 +13,7 @@ from rich.console import Console
 
 # The Rich console to be used in the scripts for pretty printing
 console = Console(highlight=False)
+log = logging.getLogger(__name__)
 
 
 def is_present(project_path):
@@ -94,7 +96,8 @@ def build_docker_image(
 ):
     docker_client = docker.from_env()
     try:
-        docker_client.images.build(
+        breakpoint()
+        _, logs = docker_client.images.build(
             path=context_path,
             tag=image_tag,
             dockerfile=dockerfile,
@@ -102,6 +105,19 @@ def build_docker_image(
         )
     except (docker.errors.APIError, docker.errors.BuildError) as error:
         raise Exception(f"Failed to build docker image {image_tag}: {error}")
+
+
+def build_docker_image_with_logs(
+    build_context, image_tag="latest", dockerfile="Dockerfile"
+):
+    docker_client = docker.APIClient(base_url="unix://var/run/docker.sock")
+    generator = docker_client.build(
+        path=build_context, dockerfile=dockerfile, tag=image_tag, rm=True, decode=True
+    )
+    for chunk in generator:
+        if "stream" in chunk:
+            for line in chunk["stream"].splitlines():
+                log.debug(line)
 
 
 def push_docker_image_to_repository(
@@ -112,7 +128,12 @@ def push_docker_image_to_repository(
     if username is not None and password is not None:
         docker_push_kwags["auth_config"] = {"username": username, "password": password}
     try:
-        docker_client.images.push(**docker_push_kwags, stream=True, decode=True)
+        for chunk in docker_client.images.push(
+            **docker_push_kwags, stream=True, decode=True
+        ):
+            if "stream" in chunk:
+                for line in chunk["stream"].splitlines():
+                    log.debug(line)
     except docker.errors.APIError as error:
         raise Exception(f"Failed to push docker image {image_tag}: {error}")
 

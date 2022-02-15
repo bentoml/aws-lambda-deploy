@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import shutil
+import json
 import subprocess
 
 import yaml
@@ -11,19 +12,18 @@ from bentoctl_lambda.utils import get_metadata
 logger = logging.getLogger(__name__)
 
 
-def generate_lambda_deployable(bento_path, project_path, lambda_config):
+def generate_lambda_deployable(bento_path, deployable_path):
     bento_metadata = get_metadata(bento_path)
     current_dir_path = os.path.dirname(__file__)
 
     # copy bento_bundle to project_path
-    shutil.copytree(bento_path, project_path)
+    shutil.copytree(bento_path, deployable_path)
 
     # Make docker file with dockerfile template
     template_file = os.path.join(current_dir_path, "Dockerfile.template")
-    dockerfile = os.path.join(project_path, "Dockerfile-lambda")
+    dockerfile = os.path.join(deployable_path, "Dockerfile")
     with open(template_file, "r", encoding="utf-8") as f:
         dockerfile_template = f.read()
-
     with open(dockerfile, "w") as dockerfile:
         dockerfile.write(
             dockerfile_template.format(
@@ -31,26 +31,22 @@ def generate_lambda_deployable(bento_path, project_path, lambda_config):
                 python_version=bento_metadata["python_version"],
             )
         )
-    # shutil.copy(
-    #     os.path.join(current_dir_path, "Dockerfile"),
-    #     os.path.join(project_path, "Dockerfile-lambda"),
-    # )
-    #
+
     # copy the entrypoint
     shutil.copy(
         os.path.join(current_dir_path, "entry.sh"),
-        os.path.join(project_path, "entry.sh"),
+        os.path.join(deployable_path, "entry.sh"),
     )
 
     # copy the config file for bento
     shutil.copy(
         os.path.join(current_dir_path, "config.yml"),
-        os.path.join(project_path, "config.yml"),
+        os.path.join(deployable_path, "config.yml"),
     )
 
     # Copy app.py which handles the Lambda events
     shutil.copy(
-        os.path.join(current_dir_path, "app.py"), os.path.join(project_path, "app.py")
+        os.path.join(current_dir_path, "app.py"), os.path.join(deployable_path, "app.py")
     )
 
 
@@ -110,14 +106,12 @@ def generate_aws_lambda_cloudformation_template_file(
     project_dir,
     api_names,
     bento_service_name,
-    docker_tag,
-    docker_file,
-    docker_context,
+    image_uri,
     memory_size: int,
     timeout: int,
 ):
-    template_file_path = os.path.join(project_dir, "template.yaml")
-    sam_config = {
+    template_file_path = os.path.join(project_dir, "cloudformation_template.yaml")
+    cf_template = {
         "AWSTemplateFormatVersion": "2010-09-09",
         "Transform": "AWS::Serverless-2016-10-31",
         "Globals": {
@@ -135,7 +129,7 @@ def generate_aws_lambda_cloudformation_template_file(
         "Resources": {},
     }
     for api_name in api_names:
-        sam_config["Resources"][api_name] = {
+        cf_template["Resources"][api_name] = {
             "Type": "AWS::Serverless::Function",
             "Properties": {
                 "FunctionName": f"{deployment_name}-{api_name}",
@@ -156,16 +150,13 @@ def generate_aws_lambda_cloudformation_template_file(
                         "BENTOML_API_NAME": api_name,
                     }
                 },
-            },
-            "Metadata": {
-                "DockerTag": docker_tag,
-                "Dockerfile": docker_file,
-                "DockerContext": "./",
+                "PackageType": "Image",
+                "ImageUri": image_uri,
             },
         }
 
     with open(template_file_path, "w") as f:
-        yaml.dump(sam_config, f, default_flow_style=False)
+        yaml.dump(cf_template, f, default_flow_style=False)
 
     # We add Outputs section separately, because the value should not
     # have "'" around !Sub
@@ -180,6 +171,22 @@ amazonaws.com/Prod"
 """
         )
     return template_file_path
+
+
+def run_shell_command(command, shell_mode=False):
+    proc = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell_mode
+    )
+    stdout, stderr = proc.communicate()
+    if proc.returncode == 0:
+        try:
+            return json.loads(stdout.decode("utf-8")), stderr.decode("utf-8")
+        except json.JSONDecodeError:
+            return stdout.decode("utf-8"), stderr.decode("utf-8")
+    else:
+        raise Exception(
+            f'Failed to run command {" ".join(command)}: {stderr.decode("utf-8")}'
+        )
 
 
 def call_sam_command(command, project_dir, region):
