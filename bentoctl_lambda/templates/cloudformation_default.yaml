@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  deploymentName:
+    Type: String
+  repositoryName:
+    Type: String
+  repositoryTag:
+    Type: String
+  memorySize:
+    Type: Number
+    Default: 514
+  timeout:
+    Type: Number
+    Default: 20
+Globals:
+  Api:
+    Auth:
+      AddDefaultAuthorizerToCorsPreflight: false
+      ApiKeyRequired: false
+      DefaultAuthorizer: NONE
+    BinaryMediaTypes:
+    - '*~1*'
+    Cors: '''*'''
+  Function:
+    MemorySize: !Ref memorySize
+    Timeout: !Ref timeout
+Resources:
+  pandas:
+    Properties:
+      Environment:
+        Variables:
+          API_GATEWAY_STAGE: ''
+      Events:
+        Api:
+          Properties:
+            Method: any
+            Path: /{proxy+}
+          Type: HttpApi
+      FunctionName: !Sub ${deploymentName}-fn
+      ImageConfig:
+        Command:
+        - app.mangum_app
+      ImageUri: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${repositoryName}:${repositoryTag}'
+      PackageType: Image
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31
+Outputs:
+  EndpointUrl:
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Description: URL for endpoint
