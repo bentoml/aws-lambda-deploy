@@ -5,15 +5,12 @@ from bentoml import load
 from bentoml._internal.configuration.containers import DeploymentContainer
 from mangum import Mangum
 
-api_name = os.environ["BENTOML_API_NAME"]
-print("loading app: ", api_name)
+API_GATEWAY_STAGE = os.environ.get('API_GATEWAY_STAGE', None)
 print("Loading from dir...")
 bento_service = load("./")
 print("bento service", bento_service)
-# bento_service_api = bento_service.get_inference_api(api_name)
 
-this_module = sys.modules[__name__]
 # Disable /metrics endpoint since promethues is not configured for use
 # in lambda
 DeploymentContainer.api_server_config.metrics.enabled.set(False)
-setattr(this_module, api_name, Mangum(bento_service.asgi_app))
+mangum_app = Mangum(bento_service.asgi_app, api_gateway_base_path=API_GATEWAY_STAGE)
