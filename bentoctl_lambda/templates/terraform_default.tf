@@ -21,6 +21,14 @@ variable "deployment_name" {
   type = string
 }
 
+variable "repository_name" {
+    type = string
+}
+
+variable "image_tag" {
+    type = string
+}
+
 variable "aws_region" {
   description = "AWS region for all resources."
 
@@ -45,12 +53,12 @@ variable "memory_size" {
 ################################################################################
 
 data "aws_ecr_repository" "service" {
-  name = var.deployment_name
+  name = var.repository_name
 }
 
 data "aws_ecr_image" "service_image" {
   repository_name = data.aws_ecr_repository.service.name
-  image_tag       = "latest"
+  image_tag       = var.image_tag
 }
 
 resource "aws_lambda_function" "fn" {
@@ -61,12 +69,6 @@ resource "aws_lambda_function" "fn" {
   memory_size  = var.memory_size
   image_uri    = "${data.aws_ecr_repository.service.repository_url}@${data.aws_ecr_image.service_image.id}"
   package_type = "Image"
-
-  environment {
-    variables = {
-      "API_GATEWAY_STAGE" : aws_apigatewayv2_stage.lambda.name
-    }
-  }
 
   image_config {
     command = [
