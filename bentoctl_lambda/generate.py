@@ -34,6 +34,9 @@ def generate(name, spec, template_type, destination_dir):
         template_file_name = "cloudformation_default.yaml"
         generated_template_file_name = "cloudformation.yaml"
         generated_params_file_name = "params.json"
+    else:
+        # TODO: give proper exception or handle in validation phase
+        raise Exception("template-type not defined!")
 
     generated_template_file_path = os.path.join(
         destination_dir, generated_template_file_name
@@ -44,7 +47,7 @@ def generate(name, spec, template_type, destination_dir):
             generated_template_file_path,
         )
 
-    # generate params file 
+    # generate params file
     params = DeploymentParams(name, spec, template_type)
     params.to_params_file(os.path.join(destination_dir, generated_params_file_name))
 
