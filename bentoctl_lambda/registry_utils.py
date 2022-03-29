@@ -3,10 +3,6 @@ import base64
 import boto3
 
 
-REPOSITORY = "testrepo_ecr"
-REGION = "ap-south-1"
-
-
 def get_ecr_login_info(region, repository_id):
     ecr_client = boto3.client("ecr", region)
     token = ecr_client.get_authorization_token(registryIds=[repository_id])
@@ -37,9 +33,9 @@ def get_default_registry_creds(bento_name, operator_spec):
     """
     Return registry info
     """
-    repo_id, repo_uri = create_ecr_repository_if_not_exists(
+    repo_id, _ = create_ecr_repository_if_not_exists(
         operator_spec["region"], bento_name
     )
-    repo_url, username, password = get_ecr_login_info(REGION, repo_id)
+    repo_url, username, password = get_ecr_login_info(operator_spec["region"], repo_id)
 
     return repo_url, username, password
