@@ -38,6 +38,7 @@ def generate(name, spec, template_type, destination_dir):
         # TODO: give proper exception or handle in validation phase
         raise Exception("template-type not defined!")
 
+    generated_files = [generated_params_file_name]
     generated_template_file_path = os.path.join(
         destination_dir, generated_template_file_name
     )
@@ -46,9 +47,10 @@ def generate(name, spec, template_type, destination_dir):
             os.path.join(os.path.dirname(__file__), f"templates/{template_file_name}"),
             generated_template_file_path,
         )
+        generated_files.append(generated_template_file_name)
 
     # generate params file
     params = DeploymentParams(name, spec, template_type)
     params.to_params_file(os.path.join(destination_dir, generated_params_file_name))
 
-    return generated_template_file_path
+    return generated_files
