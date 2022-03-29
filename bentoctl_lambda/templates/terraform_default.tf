@@ -10,7 +10,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region = var.region
 }
 
 ################################################################################
@@ -29,7 +29,7 @@ variable "image_tag" {
     type = string
 }
 
-variable "aws_region" {
+variable "region" {
   description = "AWS region for all resources."
 
   type    = string
