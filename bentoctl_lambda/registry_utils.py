@@ -29,12 +29,12 @@ def create_ecr_repository_if_not_exists(region, repository_name):
     return repository_id, repository_uri
 
 
-def get_default_registry_creds(bento_name, operator_spec):
+def get_registry_info(deployment_name, operator_spec):
     """
     Return registry info
     """
     repo_id, _ = create_ecr_repository_if_not_exists(
-        operator_spec["region"], bento_name
+        operator_spec["region"], deployment_name
     )
     repo_url, username, password = get_ecr_login_info(operator_spec["region"], repo_id)
 

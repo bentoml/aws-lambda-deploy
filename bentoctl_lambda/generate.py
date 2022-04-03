@@ -1,11 +1,11 @@
 import os
 import shutil
 
-from bentoctl_lambda.utils import get_metadata
 from bentoctl_lambda.parameters import DeploymentParams
+from bentoctl_lambda.utils import get_metadata
 
 
-def generate(name, spec, template_type, destination_dir):
+def generate(name, spec, template_type, destination_dir, values_only=True):
     """
     generates the template corresponding to the template_type.
 
@@ -30,10 +30,6 @@ def generate(name, spec, template_type, destination_dir):
         template_file_name = "terraform_default.tf"
         generated_template_file_name = "main.tf"
         generated_params_file_name = "terraform.tfvars"
-    elif template_type == "cloudformation":
-        template_file_name = "cloudformation_default.yaml"
-        generated_template_file_name = "cloudformation.yaml"
-        generated_params_file_name = "params.json"
     else:
         # TODO: give proper exception or handle in validation phase
         raise Exception("template-type not defined!")
@@ -42,7 +38,11 @@ def generate(name, spec, template_type, destination_dir):
     generated_template_file_path = os.path.join(
         destination_dir, generated_template_file_name
     )
-    if not os.path.exists(generated_template_file_path):
+    if not values_only:
+        if os.path.exists(generated_template_file_path):
+            raise FileExistsError(
+                generated_template_file_path
+                )  # TODO: use bentoctl exception
         shutil.copyfile(
             os.path.join(os.path.dirname(__file__), f"templates/{template_file_name}"),
             generated_template_file_path,

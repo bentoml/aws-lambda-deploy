@@ -1,12 +1,10 @@
-from logging import shutdown
 import os
 import shutil
 
 from bentoctl_lambda.utils import get_metadata
 
 
-def generate_lambda_deployable(bento_path, deployable_path):
-    bento_metadata = get_metadata(bento_path)
+def generate_lambda_deployable(bento_path, bento_metadata, deployable_path):
     # set base path
     path_to_templates = os.path.join(os.path.dirname(__file__), "./aws_lambda/")
 
@@ -45,7 +43,7 @@ def generate_lambda_deployable(bento_path, deployable_path):
     )
 
 
-def create_deployable(bento_path, destination_dir, overwrite_deployable):
+def create_deployable(bento_path, destination_dir, bento_metadata, overwrite_deployable):
     """
     The deployable is the bento along with all the modifications (if any)
     requried to deploy to the cloud service.
@@ -76,6 +74,7 @@ def create_deployable(bento_path, destination_dir, overwrite_deployable):
 
     generate_lambda_deployable(
         bento_path=bento_path,
+        bento_metadata=bento_metadata,
         deployable_path=deployable_path,
     )
 
