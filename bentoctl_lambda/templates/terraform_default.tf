@@ -21,11 +21,11 @@ variable "deployment_name" {
   type = string
 }
 
-variable "repository_name" {
+variable "image_repository" {
     type = string
 }
 
-variable "image_tag" {
+variable "image_version" {
     type = string
 }
 
@@ -53,12 +53,12 @@ variable "memory_size" {
 ################################################################################
 
 data "aws_ecr_repository" "service" {
-  name = var.repository_name
+  name = var.image_repository
 }
 
 data "aws_ecr_image" "service_image" {
   repository_name = data.aws_ecr_repository.service.name
-  image_tag       = var.image_tag
+  image_tag       = var.image_version
 }
 
 resource "aws_lambda_function" "fn" {
