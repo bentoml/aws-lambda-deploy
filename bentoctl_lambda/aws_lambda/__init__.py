@@ -46,7 +46,8 @@ def generate_lambda_deployable(bento_path, deployable_path):
 
     # Copy app.py which handles the Lambda events
     shutil.copy(
-        os.path.join(current_dir_path, "app.py"), os.path.join(deployable_path, "app.py")
+        os.path.join(current_dir_path, "app.py"),
+        os.path.join(deployable_path, "app.py"),
     )
 
 
