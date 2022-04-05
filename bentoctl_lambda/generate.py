@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from bentoctl_lambda.parameters import DeploymentParams
+from bentoctl_lambda.parameters import DeploymentValues
 from bentoctl_lambda.utils import get_metadata
 
 
@@ -29,7 +29,7 @@ def generate(name, spec, template_type, destination_dir, values_only=True):
     if template_type == "terraform":
         template_file_name = "terraform_default.tf"
         generated_template_file_name = "main.tf"
-        generated_params_file_name = "terraform.tfvars"
+        generated_params_file_name = "bentoctl.tfvars"
     else:
         # TODO: give proper exception or handle in validation phase
         raise Exception("template-type not defined!")
@@ -50,7 +50,7 @@ def generate(name, spec, template_type, destination_dir, values_only=True):
         generated_files.append(generated_template_file_name)
 
     # generate params file
-    params = DeploymentParams(name, spec, template_type)
+    params = DeploymentValues(name, spec, template_type)
     params.to_params_file(os.path.join(destination_dir, generated_params_file_name))
 
     return generated_files
