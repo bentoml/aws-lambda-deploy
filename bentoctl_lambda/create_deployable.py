@@ -1,22 +1,21 @@
 import os
 import shutil
 
-from bentoctl_lambda.utils import get_metadata
+path_to_aws_lambda_files = os.path.join(os.path.dirname(__file__), "./aws_lambda/")
+DOCKERFILE_TEMPLATE = os.path.join(path_to_aws_lambda_files, "Dockerfile.template")
+APP_FILE = os.path.join(path_to_aws_lambda_files, "app.py")
 
 
 def generate_lambda_deployable(bento_path, bento_metadata, deployable_path):
-    # set base path
-    path_to_templates = os.path.join(os.path.dirname(__file__), "./aws_lambda/")
-
     # copy bento_bundle to project_path
     shutil.copytree(bento_path, deployable_path)
 
     # Make docker file with dockerfile template
-    template_file = os.path.join(path_to_templates, "Dockerfile.template")
     dockerfile = os.path.join(deployable_path, "Dockerfile")
-    with open(template_file, "r", encoding="utf-8") as f:
+    with open(DOCKERFILE_TEMPLATE, "r", encoding="utf-8") as f, open(
+        dockerfile, "w"
+    ) as dockerfile:
         dockerfile_template = f.read()
-    with open(dockerfile, "w") as dockerfile:
         dockerfile.write(
             dockerfile_template.format(
                 bentoml_version=bento_metadata["bentoml_version"],
@@ -24,26 +23,16 @@ def generate_lambda_deployable(bento_path, bento_metadata, deployable_path):
             )
         )
 
-    # copy the entrypoint
+    # copy over app.py file
     shutil.copy(
-        os.path.join(path_to_templates, "entry.sh"),
-        os.path.join(deployable_path, "entry.sh"),
-    )
-
-    # copy the config file for bento
-    shutil.copy(
-        os.path.join(path_to_templates, "config.yml"),
-        os.path.join(deployable_path, "config.yml"),
-    )
-
-    # Copy app.py which handles the Lambda events
-    shutil.copy(
-        os.path.join(path_to_templates, "app.py"),
+        APP_FILE,
         os.path.join(deployable_path, "app.py"),
     )
 
 
-def create_deployable(bento_path, destination_dir, bento_metadata, overwrite_deployable):
+def create_deployable(
+    bento_path, destination_dir, bento_metadata, overwrite_deployable
+):
     """
     The deployable is the bento along with all the modifications (if any)
     requried to deploy to the cloud service.
@@ -59,7 +48,6 @@ def create_deployable(bento_path, destination_dir, bento_metadata, overwrite_dep
         docker build command
     """
 
-    # TODO: Make deployable dir name related to bento service name and version
     deployable_path = os.path.join(destination_dir, "bentoctl_deployable")
     docker_context_path = deployable_path
     dockerfile_path = os.path.join(deployable_path, "Dockerfile")

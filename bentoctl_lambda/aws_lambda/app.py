@@ -1,5 +1,4 @@
 import os
-import sys
 
 from bentoml import load
 from bentoml._internal.configuration.containers import DeploymentContainer
