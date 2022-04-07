@@ -1,6 +1,8 @@
 import os
 import shutil
 
+from bentoctl.exceptions import TemplateExists, TemplateTypeNotDefined
+
 from bentoctl_lambda.parameters import DeploymentValues
 from bentoctl_lambda.utils import get_metadata
 
@@ -31,8 +33,7 @@ def generate(name, spec, template_type, destination_dir, values_only=True):
         generated_template_file_name = "main.tf"
         generated_params_file_name = "bentoctl.tfvars"
     else:
-        # TODO: give proper exception or handle in validation phase
-        raise Exception("template-type not defined!")
+        raise TemplateTypeNotDefined(template_type)
 
     generated_files = [generated_params_file_name]
     generated_template_file_path = os.path.join(
@@ -40,9 +41,7 @@ def generate(name, spec, template_type, destination_dir, values_only=True):
     )
     if not values_only:
         if os.path.exists(generated_template_file_path):
-            raise FileExistsError(
-                generated_template_file_path
-                )  # TODO: use bentoctl exception
+            raise TemplateExists(generated_template_file_path)
         shutil.copyfile(
             os.path.join(os.path.dirname(__file__), f"templates/{template_file_name}"),
             generated_template_file_path,
