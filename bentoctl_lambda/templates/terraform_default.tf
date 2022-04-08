@@ -21,12 +21,16 @@ variable "deployment_name" {
   type = string
 }
 
+variable "image_tag" {
+  type = string
+}
+
 variable "image_repository" {
-    type = string
+  type = string
 }
 
 variable "image_version" {
-    type = string
+  type = string
 }
 
 variable "region" {
@@ -159,8 +163,7 @@ resource "aws_apigatewayv2_route" "services" {
 }
 
 resource "aws_cloudwatch_log_group" "api_gw" {
-  name = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
-
+  name              = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
   retention_in_days = 30
 }
 
@@ -169,8 +172,7 @@ resource "aws_lambda_permission" "api_gw" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.fn.function_name
   principal     = "apigateway.amazonaws.com"
-
-  source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
 }
 
 ################################################################################
@@ -179,12 +181,14 @@ resource "aws_lambda_permission" "api_gw" {
 
 output "function_name" {
   description = "Name of the Lambda function."
-
-  value = aws_lambda_function.fn.function_name
+  value       = aws_lambda_function.fn.function_name
 }
 
+output "image_tag" {
+  description = "The Image tag that is used for creating the function"
+  value       = var.image_tag
+}
 output "base_url" {
   description = "Base URL for API Gateway stage."
-
-  value = aws_apigatewayv2_stage.lambda.invoke_url
+  value       = aws_apigatewayv2_stage.lambda.invoke_url
 }

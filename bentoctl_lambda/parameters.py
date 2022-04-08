@@ -19,7 +19,6 @@ def parse_image_tag(image_tag: str):
 class DeploymentValues(UserDict):
     def __init__(self, name, spec, template_type):
         if "image_tag" in spec:
-            # image_tag format: 213386773652.dkr.ecr.ap-south-1.amazonaws.com/testlambda:fzxokwu6d2mreulw
             _, image_repository, image_version = parse_image_tag(spec["image_tag"])
             spec["image_repository"] = image_repository
             spec["image_version"] = image_version
