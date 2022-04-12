@@ -158,7 +158,7 @@ resource "aws_apigatewayv2_route" "root" {
 resource "aws_apigatewayv2_route" "services" {
   api_id = aws_apigatewayv2_api.lambda.id
 
-  route_key = "POST /{proxy+}"
+  route_key = "ANY /{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
