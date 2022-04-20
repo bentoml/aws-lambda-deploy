@@ -1,13 +1,10 @@
-<div align="center">
-    <h1> AWS Lambda Operator </h1>
-    <p>
-        <img src="https://user-images.githubusercontent.com/5261489/148166548-7b83bb3c-4818-4017-81f9-57cd8fb7872c.png" alt="aws lambda logo" width=25%/>
-    </p>
-</div>
+# Bentoctl AWS Lambda deployment
 
 AWS Lambda is a great service for quickly deploy service to the cloud for immediate
 access. It's ability to auto scale resources base on usage make it attractive to
 user who want to save cost and want to scale base on usage without administrative overhead.
+
+
 
 
 <!--ts-->
@@ -40,7 +37,7 @@ user who want to save cost and want to scale base on usage without administrativ
 
 ## Quickstart with bentoctl
 
-Bentoctl is a CLI tool that you can use to deploy bentos to Lambda. It helps in configuring and managing your deployments super easy. 
+Bentoctl is a CLI tool that you can use to deploy bentos to Lambda. It helps in configuring and managing your deployments super easy.
 
 1. Install bentoctl via pip
 ```
@@ -74,7 +71,7 @@ spec:
     region: us-west-1
     timeout: 10
     memory_size: 512
-    
+
 filename for deployment_spec [deployment_spec.yaml]:
 deployment spec file exists! Should I override? [Y/n]: y
 deployment spec generated to: deployment_spec.yaml
@@ -128,7 +125,7 @@ $ bentoctl delete -f deployment_config.yaml
 
 2. Copy and change the [sample config file](lambda_config.json) given and change it according to your deployment specifications. Check out the [config section](#configuration-options) to find the differenet options.
 
-3. Create Lambda  deployment with the deployment tool. 
+3. Create Lambda  deployment with the deployment tool.
 
    Run deploy script in the command line:
 
@@ -193,7 +190,7 @@ $ bentoctl delete -f deployment_config.yaml
 ## Deployment operations
 
 The recommendated way to use operators is via the bentoctl CLI but you can also use this repo as standalone via the
-scripts or python APIs. 
+scripts or python APIs.
 
 ### Create a deployment
 
