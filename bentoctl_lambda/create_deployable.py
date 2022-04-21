@@ -37,6 +37,15 @@ def create_deployable(
     The deployable is the bento along with all the modifications (if any)
     requried to deploy to the cloud service.
 
+    Parameters
+    ----------
+    bento_path: str
+        Path to the bento from the bento store.
+    destination_dir: str
+        directory to create the deployable into.
+    bento_metadata: dict
+        metadata about the bento.
+
     Returns
     -------
     dockerfile_path : str
