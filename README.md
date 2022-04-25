@@ -1,8 +1,9 @@
 # Bentoctl AWS Lambda deployment
 
-AWS Lambda is a great service for quickly deploy service to the cloud for immediate
-access. It's ability to auto scale resources base on usage make it attractive to
-user who want to save cost and want to scale base on usage without administrative overhead.
+Bentoctl AWS lambda deployment operator is the plugin for [bentoctl](https://github.com/bentoml/bentoctl).
+
+Bentoctl is a CLI tool for deploying your machine-learning models to any cloud platforms and serving predictions via REST APIs.
+It built on top of [BentoML: the unified model serving framework](https://github.com/bentoml/bentoml), and makes it easy to bring any BentoML packaged model to production.
 
 
 
@@ -27,13 +28,10 @@ user who want to save cost and want to scale base on usage without administrativ
 
 ## Prerequisites
 
-- An active AWS account configured on the machine with AWS CLI installed and configured
-    - Install instruction: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
-    - Configure AWS account instruction: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
-- Docker is installed and running on the machine.
-    - Install instruction: https://docs.docker.com/install
-- (Optional) bentoctl
-    - `$ pip install bentoctl`
+1. Bentoml - BentoML version 1.0 and greater. Please follow the [Installation guide](https://docs.bentoml.org/en/latest/quickstart.html#installation).
+2. Terraform - [Terraform](https://www.terraform.io/) is a tool for building, configuring, and managing infrastructure.
+3. AWS CLI installed and configured with an AWS account with permission to the Cloudformation, Lamba, API Gateway and ECR. Please follow the [Installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+4. Docker - Install instruction: https://docs.docker.com/installll instruction: https://www.terraform.io/downloads.html
 
 ## Quickstart with bentoctl
 
@@ -41,12 +39,12 @@ Bentoctl is a CLI tool that you can use to deploy bentos to Lambda. It helps in 
 
 1. Install bentoctl via pip
 ```
-$ pip install bentoctl
+$ pip install --pre bentoctl
 ```
 
 2. Add AWS Lambda operator
 ```
-$ bentoctl operator add aws-lambda
+$ bentoctl operator install aws-lambda
 ```
 
 3. Deploy to lambda. When you call `bentoctl deploy` without passing a deployment_config.yaml it will launch interactive program to generate `deployment_config.yaml` file for your deployment.
