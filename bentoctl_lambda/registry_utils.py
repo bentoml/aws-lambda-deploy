@@ -42,9 +42,12 @@ def create_repository(repository_name, operator_spec):
     repo_id, _ = create_ecr_repository_if_not_exists(
         operator_spec.get("region"), repository_name
     )
-    repo_url, username, password = get_ecr_login_info(operator_spec["region"], repo_id)
+    registry_url, username, password = get_ecr_login_info(
+        operator_spec["region"], repo_id
+    )
+    repository_url = f"{registry_url}/{repository_name}"
 
-    return repo_url, username, password
+    return repository_url, username, password
 
 
 def delete_repository(repository_name, operator_spec):
