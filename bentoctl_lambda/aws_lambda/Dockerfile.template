@@ -1,4 +1,4 @@
-FROM bentoml/bento-server:{bentoml_version}-python{python_version}-debian-runtime
+FROM python:{python_version}-slim
 
 ARG UID=1034
 ARG GID=1034
@@ -27,6 +27,8 @@ EXPOSE 5000
 
 # Setup AWS Lambda
 RUN pip install awslambdaric==2.0.0 mangum==0.12.3
+
+RUN pip install -U bentoml=={bentoml_version}
 # create BENTOML_HOME in /tmp since that is the only path available for write
 ENV BENTOML_HOME=/tmp
 

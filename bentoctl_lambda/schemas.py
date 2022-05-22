@@ -22,12 +22,12 @@ OPERATOR_SCHEMA = {
 }
 
 other_schema = {
-        "deployment_name": {
-            "required": True,
-            "type": "string",
-            "help_message": "Deployment Name"
-            }
-        }
+    "deployment_name": {
+        "required": True,
+        "type": "string",
+        "help_message": "Deployment Name",
+    }
+}
 
 # merge both dicts
 PARAMETER_SCHEMA = {**OPERATOR_SCHEMA, **other_schema}
