@@ -1,8 +1,14 @@
 import os
 import shutil
 
+from bentoctl.docker_utils import DOCKERFILE_PATH
+from bentoml._internal.bento.build_config import DockerOptions
+from bentoml._internal.bento.gen import generate_dockerfile
+
 path_to_aws_lambda_files = os.path.join(os.path.dirname(__file__), "./aws_lambda/")
-DOCKERFILE_TEMPLATE = os.path.join(path_to_aws_lambda_files, "Dockerfile.template")
+BENTOML_USER_TEMPLATE = os.path.join(
+    path_to_aws_lambda_files, "bentoctl_user_template.j2"
+)
 APP_FILE = os.path.join(path_to_aws_lambda_files, "app.py")
 
 
@@ -10,18 +16,14 @@ def generate_lambda_deployable(bento_path, bento_metadata, deployable_path):
     # copy bento_bundle to project_path
     shutil.copytree(bento_path, deployable_path)
 
-    # Make docker file with dockerfile template
-    dockerfile = os.path.join(deployable_path, "Dockerfile")
-    with open(DOCKERFILE_TEMPLATE, "r", encoding="utf-8") as f, open(
-        dockerfile, "w"
-    ) as dockerfile:
-        dockerfile_template = f.read()
-        dockerfile.write(
-            dockerfile_template.format(
-                bentoml_version=bento_metadata["bentoml_version"],
-                python_version=bento_metadata["python_version"],
-            )
-        )
+    # Make docker file with user template
+    docker_options_for_lambda = DockerOptions(dockerfile_template=BENTOML_USER_TEMPLATE)
+    dockerfile_generated = generate_dockerfile(
+        docker_options_for_lambda.with_defaults(), use_conda=False
+    )
+    dockerfile = os.path.join(deployable_path, DOCKERFILE_PATH)
+    with open(dockerfile, "w") as dockerfile:
+        dockerfile.write(dockerfile_generated)
 
     # copy over app.py file
     shutil.copy(
@@ -59,7 +61,6 @@ def create_deployable(
 
     deployable_path = os.path.join(destination_dir, "bentoctl_deployable")
     docker_context_path = deployable_path
-    dockerfile_path = os.path.join(deployable_path, "Dockerfile")
 
     if os.path.exists(deployable_path):
         if overwrite_deployable:
@@ -67,7 +68,7 @@ def create_deployable(
             shutil.rmtree(deployable_path)
         else:
             print("Using existing deployable")
-            return dockerfile_path, docker_context_path, additional_build_args
+            return docker_context_path, additional_build_args
 
     generate_lambda_deployable(
         bento_path=bento_path,
@@ -75,6 +76,4 @@ def create_deployable(
         deployable_path=deployable_path,
     )
 
-    additional_build_args = None
-
-    return dockerfile_path, docker_context_path, additional_build_args
+    return docker_context_path
