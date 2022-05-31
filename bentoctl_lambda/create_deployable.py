@@ -50,13 +50,8 @@ def create_deployable(
 
     Returns
     -------
-    dockerfile_path : str
-        path to the dockerfile.
     docker_context_path : str
         path to the docker context.
-    additional_build_args : dict
-        Any addition build arguments that need to be passed to the
-        docker build command
     """
 
     deployable_path = os.path.join(destination_dir, "bentoctl_deployable")
@@ -68,7 +63,7 @@ def create_deployable(
             shutil.rmtree(deployable_path)
         else:
             print("Using existing deployable")
-            return docker_context_path, additional_build_args
+            return docker_context_path
 
     generate_lambda_deployable(
         bento_path=bento_path,
