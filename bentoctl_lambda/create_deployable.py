@@ -12,7 +12,7 @@ BENTOML_USER_TEMPLATE = os.path.join(
 APP_FILE = os.path.join(path_to_aws_lambda_files, "app.py")
 
 
-def generate_lambda_deployable(bento_path, bento_metadata, deployable_path):
+def generate_lambda_deployable(bento_path, _, deployable_path):
     # copy bento_bundle to project_path
     shutil.copytree(bento_path, deployable_path)
 
