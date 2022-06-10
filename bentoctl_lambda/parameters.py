@@ -1,7 +1,5 @@
 from collections import UserDict
 
-from bentoctl_lambda.schemas import OPERATOR_SCHEMA
-
 DEPLOYMENT_PARAMS_WARNING = """# This file is maintained automatically by 
 # "bentoctl generate" and "bentoctl build" commands. 
 # Manual edits may be lost the next time these commands are run.

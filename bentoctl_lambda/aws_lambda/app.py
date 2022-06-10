@@ -4,7 +4,7 @@ from bentoml import load
 from bentoml._internal.configuration.containers import DeploymentContainer
 from mangum import Mangum
 
-API_GATEWAY_STAGE = os.environ.get('API_GATEWAY_STAGE', None)
+API_GATEWAY_STAGE = os.environ.get("API_GATEWAY_STAGE", None)
 print("Loading from dir...")
 bento_service = load("./")
 print("bento service", bento_service)

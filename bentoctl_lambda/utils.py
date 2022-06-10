@@ -1,7 +1,7 @@
 import os
 
-import fs
 import boto3
+import fs
 from bentoml.bentos import Bento
 
 

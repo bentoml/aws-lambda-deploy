@@ -1,0 +1,12 @@
+{% extends bento_base_template %}
+{% set bento__home = "/tmp" %}
+{% block SETUP_BENTO_ENTRYPOINT %}
+EXPOSE 3000
+
+RUN --mount=type=cache,from=cached,mode=0777,target=/root/.cache/pip \
+	pip install awslambdaric==2.0.0 mangum==0.12.3
+
+USER root
+
+ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
+{% endblock %}
