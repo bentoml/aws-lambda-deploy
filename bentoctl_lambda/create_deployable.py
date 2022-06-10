@@ -2,14 +2,22 @@ import os
 import shutil
 from pathlib import Path
 
-from bentoctl.docker_utils import DOCKERFILE_PATH
 from bentoml._internal.bento.bento import BentoInfo
+from bentoml._internal.bento.build_config import DockerOptions
 from bentoml._internal.bento.gen import generate_dockerfile
 from bentoml._internal.utils import bentoml_cattr
 
 LAMBDA_DIR = Path(os.path.dirname(__file__), "aws_lambda")
 TEMPLATE_PATH = LAMBDA_DIR.joinpath("template.j2")
 APP_PATH = LAMBDA_DIR.joinpath("app.py")
+
+
+def walk(path):
+    for p in Path(path).iterdir():
+        if p.is_dir():
+            yield from walk(p)
+            continue
+        yield p.resolve()
 
 
 def create_deployable(
@@ -34,29 +42,27 @@ def create_deployable(
         path to the docker context.
     """
 
-    deployable_path = os.path.join(destination_dir, "bentoctl_deployable")
-    docker_context_path = deployable_path
+    deployable_path = Path(destination_dir)
+    shutil.copytree(bento_path, deployable_path, dirs_exist_ok=True)
 
-    if os.path.exists(deployable_path):
-        if overwrite_deployable:
-            print(f"Overwriting existing deployable [{deployable_path}]")
-            shutil.rmtree(deployable_path)
-        else:
+    if deployable_path.exists():
+        if not overwrite_deployable:
             print("Using existing deployable")
-            return docker_context_path
+            return str(deployable_path)
 
     bento_metafile = Path(bento_path, "bento.yaml")
-    with bento_metafile.open("r") as f:
-        info = BentoInfo.from_yaml_file(f)
+    with bento_metafile.open("r", encoding="utf-8") as metafile:
+        info = BentoInfo.from_yaml_file(metafile)
 
-    info.docker.dockerfile_template = TEMPLATE_PATH
+    options = bentoml_cattr.unstructure(info.docker)
+    options["dockerfile_template"] = TEMPLATE_PATH
 
-    dockerfile = os.path.join(deployable_path, DOCKERFILE_PATH)
-    with open(dockerfile, "w") as dockerfile:
+    dockerfile_path = deployable_path.joinpath("env", "docker", "Dockerfile")
+    with dockerfile_path.open("w", encoding="utf-8") as dockerfile:
         dockerfile.write(
             generate_dockerfile(
-                info.docker,
-                deployable_path,
+                DockerOptions(**options).with_defaults(),
+                str(deployable_path),
                 use_conda=any(
                     i is not None
                     for i in bentoml_cattr.unstructure(info.conda).values()
@@ -65,9 +71,6 @@ def create_deployable(
         )
 
     # copy over app.py file
-    shutil.copy(
-        APP_PATH,
-        os.path.join(deployable_path, "app.py"),
-    )
+    shutil.copy(str(APP_PATH), os.path.join(deployable_path, "app.py"))
 
-    return docker_context_path
+    return str(deployable_path)
