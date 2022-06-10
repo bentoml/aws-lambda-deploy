@@ -12,14 +12,6 @@ TEMPLATE_PATH = LAMBDA_DIR.joinpath("template.j2")
 APP_PATH = LAMBDA_DIR.joinpath("app.py")
 
 
-def walk(path):
-    for p in Path(path).iterdir():
-        if p.is_dir():
-            yield from walk(p)
-            continue
-        yield p.resolve()
-
-
 def create_deployable(
     bento_path, destination_dir, bento_metadata, overwrite_deployable
 ):
