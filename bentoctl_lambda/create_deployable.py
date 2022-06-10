@@ -20,7 +20,7 @@ def create_deployable(
     destination_dir: str,
     bento_metadata: dict[str, Any],
     overwrite_deployable: bool,
-):
+) -> str:
     """
     The deployable is the bento along with all the modifications (if any)
     requried to deploy to the cloud service.
