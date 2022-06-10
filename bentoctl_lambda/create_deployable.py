@@ -1,35 +1,15 @@
 import os
 import shutil
+from pathlib import Path
 
 from bentoctl.docker_utils import DOCKERFILE_PATH
-from bentoml._internal.bento.build_config import DockerOptions
+from bentoml._internal.bento.bento import BentoInfo
 from bentoml._internal.bento.gen import generate_dockerfile
+from bentoml._internal.utils import bentoml_cattr
 
-path_to_aws_lambda_files = os.path.join(os.path.dirname(__file__), "./aws_lambda/")
-BENTOML_USER_TEMPLATE = os.path.join(
-    path_to_aws_lambda_files, "bentoctl_user_template.j2"
-)
-APP_FILE = os.path.join(path_to_aws_lambda_files, "app.py")
-
-
-def generate_lambda_deployable(bento_path, _, deployable_path):
-    # copy bento_bundle to project_path
-    shutil.copytree(bento_path, deployable_path)
-
-    # Make docker file with user template
-    docker_options_for_lambda = DockerOptions(dockerfile_template=BENTOML_USER_TEMPLATE)
-    dockerfile_generated = generate_dockerfile(
-        docker_options_for_lambda.with_defaults(), use_conda=False
-    )
-    dockerfile = os.path.join(deployable_path, DOCKERFILE_PATH)
-    with open(dockerfile, "w") as dockerfile:
-        dockerfile.write(dockerfile_generated)
-
-    # copy over app.py file
-    shutil.copy(
-        APP_FILE,
-        os.path.join(deployable_path, "app.py"),
-    )
+LAMBDA_DIR = Path(os.path.dirname(__file__), "aws_lambda")
+TEMPLATE_PATH = LAMBDA_DIR.joinpath("template.j2")
+APP_PATH = LAMBDA_DIR.joinpath("app.py")
 
 
 def create_deployable(
@@ -65,10 +45,29 @@ def create_deployable(
             print("Using existing deployable")
             return docker_context_path
 
-    generate_lambda_deployable(
-        bento_path=bento_path,
-        bento_metadata=bento_metadata,
-        deployable_path=deployable_path,
+    bento_metafile = Path(bento_path, "bento.yaml")
+    with bento_metafile.open("r") as f:
+        info = BentoInfo.from_yaml_file(f)
+
+    info.docker.dockerfile_template = TEMPLATE_PATH
+
+    dockerfile = os.path.join(deployable_path, DOCKERFILE_PATH)
+    with open(dockerfile, "w") as dockerfile:
+        dockerfile.write(
+            generate_dockerfile(
+                info.docker,
+                deployable_path,
+                use_conda=any(
+                    i is not None
+                    for i in bentoml_cattr.unstructure(info.conda).values()
+                ),
+            )
+        )
+
+    # copy over app.py file
+    shutil.copy(
+        APP_PATH,
+        os.path.join(deployable_path, "app.py"),
     )
 
     return docker_context_path
