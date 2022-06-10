@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import os
 import shutil
 from pathlib import Path
+from typing import Any
 
 from bentoml._internal.bento.bento import BentoInfo
 from bentoml._internal.bento.build_config import DockerOptions
@@ -13,7 +16,10 @@ APP_PATH = LAMBDA_DIR.joinpath("app.py")
 
 
 def create_deployable(
-    bento_path, destination_dir, bento_metadata, overwrite_deployable
+    bento_path: str,
+    destination_dir: str,
+    bento_metadata: dict[str, Any],
+    overwrite_deployable: bool,
 ):
     """
     The deployable is the bento along with all the modifications (if any)
