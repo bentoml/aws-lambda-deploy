@@ -14,7 +14,6 @@ else:
 from bentoml._internal.bento.bento import BentoInfo
 from bentoml._internal.bento.build_config import DockerOptions
 from bentoml._internal.bento.gen import generate_dockerfile
-from bentoml._internal.utils import bentoml_cattr
 
 LAMBDA_DIR = Path(os.path.dirname(__file__), "aws_lambda")
 TEMPLATE_PATH = LAMBDA_DIR.joinpath("template.j2")
@@ -58,7 +57,7 @@ def create_deployable(
     with bento_metafile.open("r", encoding="utf-8") as metafile:
         info = BentoInfo.from_yaml_file(metafile)
 
-    options = bentoml_cattr.unstructure(info.docker)
+    options = asdict(info.docker)
     options["dockerfile_template"] = TEMPLATE_PATH
 
     dockerfile_path = deployable_path.joinpath("env", "docker", "Dockerfile")
