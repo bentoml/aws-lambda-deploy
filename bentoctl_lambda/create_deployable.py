@@ -4,6 +4,7 @@ import os
 import shutil
 from sys import version_info
 from pathlib import Path
+from attr import asdict
 from typing import Any
 
 if version_info >= (3, 8):
