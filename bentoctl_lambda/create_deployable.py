@@ -67,10 +67,7 @@ def create_deployable(
             generate_dockerfile(
                 DockerOptions(**options).with_defaults(),
                 str(deployable_path),
-                use_conda=any(
-                    i is not None
-                    for i in bentoml_cattr.unstructure(info.conda).values()
-                ),
+                use_conda=not info.conda.is_empty(),
             )
         )
 
