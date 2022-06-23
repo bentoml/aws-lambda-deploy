@@ -2,8 +2,14 @@ from __future__ import annotations
 
 import os
 import shutil
+from sys import version_info
 from pathlib import Path
 from typing import Any
+
+if version_info >= (3, 8):
+    from shutil import copytree
+else:
+    from backports.shutil_copytree import copytree
 
 from bentoml._internal.bento.bento import BentoInfo
 from bentoml._internal.bento.build_config import DockerOptions
@@ -41,7 +47,7 @@ def create_deployable(
     """
 
     deployable_path = Path(destination_dir)
-    shutil.copytree(bento_path, deployable_path, dirs_exist_ok=True)
+    copytree(bento_path, deployable_path, dirs_exist_ok=True)
 
     if deployable_path.exists():
         if not overwrite_deployable:

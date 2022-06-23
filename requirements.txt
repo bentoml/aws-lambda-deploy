@@ -1,1 +1,2 @@
 boto3
+backports.shutil_copytree
