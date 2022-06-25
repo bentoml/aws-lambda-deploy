@@ -84,7 +84,7 @@ def create_deployable(
         os.path.join(deployable_path, "aws-lambda-rie"),
     )
 
-    # bentoml_config_file
+    # bentoml_config_file to dissable /metrics
     shutil.copy(
         str(BENTOML_CONFIG_FILE),
         os.path.join(deployable_path, "bentoml_config.yaml"),
