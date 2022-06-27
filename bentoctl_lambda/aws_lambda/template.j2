@@ -11,7 +11,5 @@ USER root
 ADD ./aws-lambda-rie /usr/local/bin/aws-lambda-rie
 RUN chmod +x /usr/local/bin/aws-lambda-rie
 RUN chmod +x {{bento__path}}/env/docker/entry_script.sh
-ENTRYPOINT ["{{ 
-    expands_bento_path("env", "docker", "entry_script.sh", bento_path=bento__path)
-    }}"]
+ENTRYPOINT ["{{bento__path}}/env/docker/entry_script.sh"]
 {% endblock %}
