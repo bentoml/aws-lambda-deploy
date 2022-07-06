@@ -188,7 +188,7 @@ output "image_tag" {
   description = "The Image tag that is used for creating the function"
   value       = var.image_tag
 }
-output "base_url" {
+output "endpoint" {
   description = "Base URL for API Gateway stage."
   value       = aws_apigatewayv2_stage.lambda.invoke_url
 }
