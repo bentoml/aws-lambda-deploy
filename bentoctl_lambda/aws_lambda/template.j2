@@ -4,8 +4,7 @@
 EXPOSE 3000
 ENV BENTOML_CONFIG={{bento__path}}/bentoml_config.yaml
 
-RUN --mount=type=cache,from=cached,mode=0777,target=/root/.cache/pip \
-	pip install awslambdaric==2.0.0 mangum==0.12.3
+RUN {{ common.mount_cache("/root/.cache/pip") }} pip install awslambdaric==2.0.0 mangum==0.12.3
 
 USER root
 ADD ./aws-lambda-rie /usr/local/bin/aws-lambda-rie
