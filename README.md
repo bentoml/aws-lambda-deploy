@@ -33,7 +33,7 @@ Bentoctl is a CLI tool that you can use to deploy bentos to Lambda. It helps in 
 
 1. Install bentoctl via pip
     ```
-    $ pip install --pre bentoctl
+    $ pip install bentoctl
     ```
 
 2. Install AWS Lambda operator
